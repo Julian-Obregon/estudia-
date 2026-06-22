@@ -19,6 +19,8 @@
     await OneSignal.init({
       appId: "f9f96c29-e81f-4333-8520-81ef5592ded5",
       notifyButton: { enable: true },
+      serviceWorkerParam: { scope: "/estudia-/" },
+      serviceWorkerPath: "sw.js",
     });
   });
 </script>
