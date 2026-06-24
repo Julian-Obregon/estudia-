@@ -1,2 +1,2 @@
-# estudia-
+# estudia
 estudia, no cuelgues!
