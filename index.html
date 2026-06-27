@@ -3,27 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>La Cadena — Plan de la materia</title>
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#FF8A3D">
-<link rel="icon" href="icon-192.png">
-<link rel="apple-touch-icon" href="icon-192.png">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="La Cadena">
-<!-- OneSignal: notificaciones push reales (requiere App ID, ver instrucciones) -->
-<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
-<script>
-  window.OneSignalDeferred = window.OneSignalDeferred || [];
-  OneSignalDeferred.push(async function(OneSignal) {
-    await OneSignal.init({
-      appId: "f9f96c29-e81f-4333-8520-81ef5592ded5",
-      notifyButton: { enable: true },
-      serviceWorkerParam: { scope: "/estudia-/" },
-      serviceWorkerPath: "sw.js",
-    });
-  });
-</script>
+<title>Estudia</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -246,7 +226,7 @@ header{display:flex;justify-content:space-between;align-items:flex-start;margin-
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1A1209" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9 12l2 2 4-4"/></svg>
       </div>
       <div>
-        <h1>La Cadena</h1>
+        <h1>Estudia</h1>
         <p id="subject-tag">configurá tu materia</p>
       </div>
     </div>
@@ -380,28 +360,60 @@ header{display:flex;justify-content:space-between;align-items:flex-start;margin-
 
 <script>
 const STORAGE_KEY='cadena_materia_v1';
+let _db=null,_doc=null,_setDoc=null,_getDoc=null;
+
+const DEFAULT_STATE = {
+  materia:'', fechaAsignacion:'', fechaInicio:'', semanas:16,
+  configurado:false, tareaHoy:'', dias:{}, semanasPlan:[],
+  examChecklist:[
+    {t:'Hice al menos un examen / práctico de años anteriores',c:false},
+    {t:'Repasé mis propios resúmenes, no apuntes ajenos',c:false},
+    {t:'Dormí 7+ horas la noche anterior',c:false},
+    {t:'Comí algo antes de entrar',c:false},
+    {t:'Anoté 3 temas que más me cuestan para repasar último',c:false},
+    {t:'Llegué con margen, no corriendo',c:false}
+  ]
+};
 
 function loadState(){
   try{
     const raw=localStorage.getItem(STORAGE_KEY);
-    if(raw) return JSON.parse(raw);
+    if(raw) return {...DEFAULT_STATE,...JSON.parse(raw)};
   }catch(e){}
-  return {
-    materia:'', fechaAsignacion:'', fechaInicio:'', semanas:16,
-    configurado:false, tareaHoy:'', dias:{}, semanasPlan:[],
-    examChecklist:[
-      {t:'Hice al menos un examen / práctico de años anteriores',c:false},
-      {t:'Repasé mis propios resúmenes, no apuntes ajenos',c:false},
-      {t:'Dormí 7+ horas la noche anterior',c:false},
-      {t:'Comí algo antes de entrar',c:false},
-      {t:'Anoté 3 temas que más me cuestan para repasar último',c:false},
-      {t:'Llegué con margen, no corriendo',c:false}
-    ]
-  };
+  return {...DEFAULT_STATE};
 }
-function saveState(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+
+async function saveState(){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  if(_db&&_doc&&_setDoc){
+    try{ await _setDoc(_doc(_db,'estudio','estado'), state); }catch(e){}
+  }
+}
 
 let state = loadState();
+
+// Firebase init — carga datos de la nube si hay
+(async()=>{
+  const {initializeApp}=await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js');
+  const {getFirestore,doc,setDoc,getDoc}=await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js');
+  const app=initializeApp({
+    apiKey:"AIzaSyBDM8ljpyP8CFpE82ahZmcdSsjjilKTT2k",
+    authDomain:"renta-de-bonos.firebaseapp.com",
+    projectId:"renta-de-bonos",
+    storageBucket:"renta-de-bonos.firebasestorage.app",
+    messagingSenderId:"870288925496",
+    appId:"1:870288925496:web:7979e7a6c60334aad197cd"
+  });
+  _db=getFirestore(app);_doc=doc;_setDoc=setDoc;_getDoc=getDoc;
+  try{
+    const snap=await _getDoc(_doc(_db,'estudio','estado'));
+    if(snap.exists()){
+      state={...DEFAULT_STATE,...snap.data()};
+      localStorage.setItem(STORAGE_KEY,JSON.stringify(state));
+      render();
+    }
+  }catch(e){ console.log('Firebase error:',e); }
+})();
 
 function todayStr(){ return new Date().toISOString().slice(0,10); }
 function fmtDate(d){
@@ -469,10 +481,11 @@ function toggleExam(i){
   render();
 }
 
-function reiniciarTodo(){
+async function reiniciarTodo(){
   if(confirm('¿Seguro? Esto borra toda tu racha y configuración.')){
+    if(_db&&_doc&&_setDoc) try{await _setDoc(_doc(_db,'estudio','estado'),DEFAULT_STATE);}catch(e){}
     localStorage.removeItem(STORAGE_KEY);
-    state=loadState();
+    state={...DEFAULT_STATE};
     render();
     document.getElementById('setup-banner').classList.remove('hidden');
   }
@@ -719,13 +732,6 @@ async function generar(){
     loadingRow.classList.add('hidden');
   }
 }
-</script>
-<script>
-  if('serviceWorker' in navigator){
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js').catch(err => console.log('SW error:', err));
-    });
-  }
 </script>
 </body>
 </html>
