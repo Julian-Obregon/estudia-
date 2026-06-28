@@ -225,6 +225,32 @@ footer{text-align:center;margin-top:32px;}
       <input type="number" id="timer-custom-min" value="45" min="1" max="180" onchange="setCustomTimer()">
       <label>minutos</label>
     </div>
+    <div id="session-log-today" style="margin-top:14px;font-size:12px;color:var(--muted);font-family:var(--font-mono);text-align:center;"></div>
+  </div>
+
+  <!-- ALERTA RACHA -->
+  <div id="alerta-racha" class="hidden" style="background:var(--amber-soft);border:1px solid var(--amber);border-radius:12px;padding:14px 18px;margin-bottom:18px;display:flex;align-items:center;gap:12px;">
+    <span style="font-size:20px">⚠️</span>
+    <div>
+      <div style="font-weight:600;font-size:14px;color:var(--amber)">¡Cadena en peligro!</div>
+      <div style="font-size:12.5px;color:var(--text-dim);margin-top:2px">Todavía no marcaste el día de hoy. Hacé aunque sea 10 minutos ahora.</div>
+    </div>
+  </div>
+
+  <!-- BARRA PROGRESO CUATRIMESTRE -->
+  <div class="card" style="margin-bottom:18px" id="progreso-cuatri-card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+      <div style="font-family:var(--font-display);font-size:14px;font-weight:600;">Avance del cuatrimestre</div>
+      <div style="font-family:var(--font-mono);font-size:12px;color:var(--amber)" id="cuatri-pct">0%</div>
+    </div>
+    <div style="height:8px;background:var(--surface3,#2E3544);border-radius:4px;overflow:hidden;margin-bottom:8px;">
+      <div id="cuatri-bar" style="height:100%;background:var(--amber);border-radius:4px;transition:width .5s ease;width:0%"></div>
+    </div>
+    <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted2);font-family:var(--font-mono);">
+      <span id="cuatri-inicio">—</span>
+      <span id="cuatri-semanas-txt">—</span>
+      <span id="cuatri-fin">—</span>
+    </div>
   </div>
 
   <!-- GRID: HOY + STATS -->
@@ -245,6 +271,13 @@ footer{text-align:center;margin-top:32px;}
         <button class="btn btn-amber" onclick="guardarTarea()" style="width:100%">Guardar tarea</button>
       </div>
       <div class="muted-note" id="hoy-note"></div>
+
+      <!-- NOTAS RÁPIDAS -->
+      <div style="margin-top:16px;border-top:1px solid var(--border-soft);padding-top:14px;">
+        <div style="font-size:11px;color:var(--muted);font-family:var(--font-mono);letter-spacing:0.04em;margin-bottom:8px;">NOTA RÁPIDA DEL DÍA</div>
+        <textarea id="nota-rapida" placeholder="¿Qué entendiste? ¿Dónde quedaste? ¿Qué no te cerró?" style="width:100%;background:var(--bg-elev);border:1px solid var(--border);border-radius:9px;padding:10px 12px;color:var(--text);font-family:var(--font-body);font-size:13px;resize:vertical;min-height:70px;line-height:1.5;" oninput="guardarNotaRapida(this.value)"></textarea>
+        <div style="font-size:11px;color:var(--muted2);margin-top:5px">Se guarda automáticamente. Cuando retomés mañana, sabés por dónde arrancar.</div>
+      </div>
     </div>
 
     <div class="card">
@@ -256,7 +289,12 @@ footer{text-align:center;margin-top:32px;}
       </div>
       <div class="stat-row">
         <div class="stat-box"><div class="stat-num" id="s-total">0</div><div class="stat-lbl">días totales</div></div>
-        <div class="stat-box"><div class="stat-num" id="s-semanas">0</div><div class="stat-lbl">semanas</div></div>
+        <div class="stat-box"><div class="stat-num" id="s-mins">0</div><div class="stat-lbl">min hoy</div></div>
+      </div>
+      <!-- HISTORIAL SESIONES -->
+      <div style="margin-top:14px;border-top:1px solid var(--border-soft);padding-top:12px;">
+        <div style="font-size:11px;color:var(--muted);font-family:var(--font-mono);margin-bottom:8px;">SESIONES RECIENTES</div>
+        <div id="sesiones-lista" style="font-size:12px;color:var(--text-dim);font-family:var(--font-mono);line-height:2;"></div>
       </div>
     </div>
   </div>
@@ -266,13 +304,6 @@ footer{text-align:center;margin-top:32px;}
     <div class="card-title">Plan semana a semana</div>
     <div class="card-sub">Cargá el tema de cada semana cuando tengas el programa.</div>
     <div id="weeks-list"></div>
-  </div>
-
-  <!-- MODO EXAMEN -->
-  <div class="card" style="margin-bottom:18px">
-    <div class="card-title">Modo examen — checklist previo</div>
-    <div class="card-sub">Algo concreto para hacer en vez de darle vueltas en la cabeza.</div>
-    <div id="exam-list"></div>
   </div>
 
   <!-- MATERIAL IA -->
@@ -543,6 +574,8 @@ function setCustomTimer(){
 function toggleTimer(){
   if(timerRunning){
     clearInterval(timerInterval);timerRunning=false;
+    const mins=Math.round((timerTotal-timerLeft)/60);
+    if(mins>0) registrarSesion(mins);
     document.getElementById('timer-btn-start').textContent='▶ Continuar';
     document.getElementById('timer-display').className='timer-display';
   }else{
@@ -556,10 +589,10 @@ function toggleTimer(){
       document.getElementById('timer-bar').style.width=pct+'%';
       if(timerLeft<=0){
         clearInterval(timerInterval);timerRunning=false;
+        registrarSesion(Math.round(timerTotal/60));
         document.getElementById('timer-display').className='timer-display done';
         document.getElementById('timer-btn-start').textContent='▶ Iniciar';
         document.getElementById('timer-bar').style.width='100%';
-        // Notificación sonora
         try{const ctx=new AudioContext();const o=ctx.createOscillator();const g=ctx.createGain();o.connect(g);g.connect(ctx.destination);o.frequency.value=880;g.gain.setValueAtTime(0.3,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+1);o.start();o.stop(ctx.currentTime+1);}catch(e){}
         if('Notification' in window&&Notification.permission==='granted') new Notification('¡Tiempo de estudio terminado! 🎯');
       }
@@ -583,7 +616,80 @@ function updateTimerDisplay(){
   document.getElementById('timer-display').textContent=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
 }
 
-// ===== MATERIAL IA =====
+// ===== SESIONES / TIEMPO =====
+let sessionStartTime=null;
+
+function registrarSesion(minutos){
+  const m=getMateriaActiva();if(!m)return;
+  if(!m.sesiones) m.sesiones={};
+  const hoy=todayStr();
+  m.sesiones[hoy]=(m.sesiones[hoy]||0)+Math.round(minutos);
+  saveState();
+  renderSessionLog();
+}
+
+function renderSessionLog(){
+  const m=getMateriaActiva();if(!m)return;
+  const hoy=todayStr();
+  const minsHoy=(m.sesiones&&m.sesiones[hoy])||0;
+  const logEl=document.getElementById('session-log-today');
+  const minsEl=document.getElementById('s-mins');
+  if(logEl) logEl.textContent=minsHoy>0?`⏱ ${minsHoy} min estudiados hoy`:'';
+  if(minsEl) minsEl.textContent=minsHoy;
+
+  // Sesiones recientes (últimos 5 días con datos)
+  const sesEl=document.getElementById('sesiones-lista');
+  if(!sesEl||!m.sesiones)return;
+  const dias=Object.entries(m.sesiones).filter(([,v])=>v>0).sort((a,b)=>b[0].localeCompare(a[0])).slice(0,5);
+  if(!dias.length){sesEl.textContent='Sin sesiones registradas aún.';return;}
+  sesEl.innerHTML=dias.map(([d,min])=>{
+    const dt=new Date(d+'T00:00:00');
+    const label=dt.toLocaleDateString('es-AR',{weekday:'short',day:'2-digit',month:'short'});
+    return `<div style="display:flex;justify-content:space-between"><span>${label}</span><span style="color:var(--amber)">${min} min</span></div>`;
+  }).join('');
+}
+
+// ===== NOTAS RÁPIDAS =====
+async function guardarNotaRapida(val){
+  const m=getMateriaActiva();if(!m)return;
+  if(!m.notas) m.notas={};
+  m.notas[todayStr()]=val;
+  await saveState();
+}
+
+// ===== BARRA PROGRESO CUATRIMESTRE =====
+function renderProgresCuatri(m){
+  if(!m.fechaInicio){
+    document.getElementById('progreso-cuatri-card').style.display='none';return;
+  }
+  document.getElementById('progreso-cuatri-card').style.display='';
+  const inicio=new Date(m.fechaInicio+'T00:00:00');
+  const fin=new Date(inicio);fin.setDate(fin.getDate()+m.semanas*7);
+  const hoy=new Date();
+  const totalDias=fin-inicio;
+  const pasados=Math.max(0,hoy-inicio);
+  const pct=Math.min(100,Math.round((pasados/totalDias)*100));
+  const semanasActual=Math.max(0,Math.floor(pasados/(7*86400000)));
+
+  document.getElementById('cuatri-bar').style.width=pct+'%';
+  document.getElementById('cuatri-pct').textContent=pct+'%';
+  document.getElementById('cuatri-inicio').textContent=inicio.toLocaleDateString('es-AR',{day:'2-digit',month:'short'});
+  document.getElementById('cuatri-fin').textContent=fin.toLocaleDateString('es-AR',{day:'2-digit',month:'short'});
+  document.getElementById('cuatri-semanas-txt').textContent=`Semana ${semanasActual} de ${m.semanas}`;
+}
+
+// ===== ALERTA RACHA EN PELIGRO =====
+function checkAlertaRacha(m){
+  const hora=new Date().getHours();
+  const hechoHoy=!!m.dias[todayStr()];
+  const alerta=document.getElementById('alerta-racha');
+  // Mostrar si son las 19hs o más y no marcó el día
+  if(!hechoHoy && hora>=19){
+    alerta.classList.remove('hidden');
+  }else{
+    alerta.classList.add('hidden');
+  }
+}
 let uploadedFile=null;let currentAction='resumen';
 
 function handleFile(ev){
@@ -677,6 +783,13 @@ function render(){
   else note.textContent='El primer día es hoy.';
 
   renderChain(m);
+  renderProgresCuatri(m);
+  checkAlertaRacha(m);
+  renderSessionLog();
+
+  // Nota rápida de hoy
+  const notaEl=document.getElementById('nota-rapida');
+  if(notaEl) notaEl.value=(m.notas&&m.notas[todayStr()])||'';
 
   // Plan semanal
   const weeksList=document.getElementById('weeks-list');
