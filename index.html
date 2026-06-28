@@ -302,7 +302,16 @@ footer{text-align:center;margin-top:32px;}
   <!-- PLAN SEMANAL -->
   <div class="card" style="margin-bottom:18px">
     <div class="card-title">Plan semana a semana</div>
-    <div class="card-sub">Cargá el tema de cada semana cuando tengas el programa.</div>
+    <div class="card-sub">Cargá el tema de cada semana manualmente, o subí el PDF del programa y lo completamos automáticamente.</div>
+    <div style="margin-bottom:14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+      <label style="display:flex;align-items:center;gap:8px;background:var(--amber-soft);border:1px solid var(--amber);color:var(--amber);padding:8px 14px;border-radius:9px;cursor:pointer;font-size:12.5px;font-weight:600;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        Subir programa (PDF)
+        <input type="file" id="cronograma-file" accept=".pdf,.txt" class="hidden" onchange="cargarCronograma(event)">
+      </label>
+      <span id="cronograma-status" style="font-size:12px;color:var(--muted);font-family:var(--font-mono);"></span>
+    </div>
+    <div id="cronograma-loading" class="hidden" style="display:flex;align-items:center;gap:10px;color:var(--muted);font-size:12.5px;margin-bottom:12px;"><div class="spinner"></div><span>Leyendo el programa y completando el plan...</span></div>
     <div id="weeks-list"></div>
   </div>
 
@@ -614,6 +623,41 @@ function resetTimer(){
 function updateTimerDisplay(){
   const m=Math.floor(timerLeft/60);const s=timerLeft%60;
   document.getElementById('timer-display').textContent=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
+
+// ===== CRONOGRAMA AUTOMÁTICO =====
+async function cargarCronograma(ev){
+  const f=ev.target.files[0];if(!f)return;
+  const m=getMateriaActiva();if(!m)return;
+  const status=document.getElementById('cronograma-status');
+  const loading=document.getElementById('cronograma-loading');
+  loading.classList.remove('hidden');loading.style.display='flex';
+  status.textContent='';
+  try{
+    const isPdf=f.type==='application/pdf'||f.name.toLowerCase().endsWith('.pdf');
+    let content;
+    if(isPdf){
+      const base64=await new Promise((res,rej)=>{const r=new FileReader();r.onload=e=>res(e.target.result.split(',')[1]);r.onerror=rej;r.readAsDataURL(f);});
+      content=[
+        {type:'document',source:{type:'base64',media_type:'application/pdf',data:base64}},
+        {type:'text',text:`Este es el programa/cronograma de la materia "${m.nombre}" que tiene ${m.semanas} semanas. Devolvé ÚNICAMENTE un JSON sin texto adicional:\n{"semanas":[{"num":1,"tema":"descripción corta semana 1"},{"num":2,"tema":"..."},...hasta semana ${m.semanas}]}\nSi una semana no tiene tema usá "". Máximo 60 caracteres por tema.`}
+      ];
+    }else{
+      const texto=await new Promise((res,rej)=>{const r=new FileReader();r.onload=e=>res(e.target.result);r.onerror=rej;r.readAsText(f);});
+      content=[{type:'text',text:`Programa de "${m.nombre}" (${m.semanas} semanas):\n\n${texto.slice(0,30000)}\n\nDevolvé ÚNICAMENTE un JSON:\n{"semanas":[{"num":1,"tema":"descripción corta"},...]}\nMáximo 60 caracteres por tema.`}];
+    }
+    const resp=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:2000,messages:[{role:"user",content}]})});
+    const data=await resp.json();
+    if(data.error) throw new Error(data.error.message);
+    const text=(data.content||[]).map(b=>b.text||'').join('');
+    const parsed=JSON.parse(text.replace(/```json|```/g,'').trim());
+    if(parsed.semanas&&Array.isArray(parsed.semanas)){
+      parsed.semanas.forEach(s=>{const idx=s.num-1;if(idx>=0&&idx<m.semanasPlan.length&&s.tema)m.semanasPlan[idx].tema=s.tema;});
+      await saveState();render();
+      status.textContent=`✓ ${parsed.semanas.filter(s=>s.tema).length} temas cargados`;
+    }else throw new Error('Formato inválido');
+  }catch(e){status.textContent='Error — intentá con un .txt';console.error(e);}
+  finally{loading.classList.add('hidden');document.getElementById('cronograma-file').value='';}
 }
 
 // ===== SESIONES / TIEMPO =====
