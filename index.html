@@ -3,17 +3,35 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Estudia</title>
+<title>Lectura</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#A78BFA">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Lectura">
+<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+<script>
+  window.OneSignalDeferred=window.OneSignalDeferred||[];
+  OneSignalDeferred.push(async function(OneSignal){
+    await OneSignal.init({
+      appId:"f9f96c29-e81f-4333-8520-81ef5592ded5",
+      notifyButton:{enable:true},
+      serviceWorkerParam:{scope:"/cadena-lectura/"},
+      serviceWorkerPath:"sw.js",
+    });
+  });
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#11141A;--bg-elev:#161A22;--surface:#1C212B;--surface2:#242A36;
+  --bg:#11141A;--bg-elev:#161A22;--surface:#1C212B;--surface2:#242A36;--surface3:#2E3544;
   --border:#2E3544;--border-soft:#1F2530;
-  --amber:#FF8A3D;--amber-soft:rgba(255,138,61,0.14);--amber-dim:#CC6E2F;
+  --violet:#A78BFA;--violet-soft:rgba(167,139,250,0.14);--violet-dim:#7C3AED;
   --teal:#2DD4BF;--teal-soft:rgba(45,212,191,0.14);
   --red:#FF5C6E;--red-soft:rgba(255,92,110,0.14);
-  --violet:#A78BFA;--violet-soft:rgba(167,139,250,0.14);
   --text:#F2F0EA;--text-dim:#C8CCD6;--muted:#8B92A3;--muted2:#5C6478;
   --font-display:'Space Grotesk',sans-serif;
   --font-body:'Inter',sans-serif;
@@ -22,134 +40,130 @@
 *{box-sizing:border-box;margin:0;padding:0;}
 body{background:var(--bg);color:var(--text);font-family:var(--font-body);min-height:100vh;line-height:1.5;}
 ::-webkit-scrollbar{width:6px;}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
-.wrap{max-width:900px;margin:0 auto;padding:28px 20px 80px;}
+.wrap{max-width:860px;margin:0 auto;padding:28px 20px 80px;}
 
 /* HEADER */
-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:12px;}
+header{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px;flex-wrap:wrap;gap:12px;}
 .brand{display:flex;align-items:center;gap:12px;}
-.brand-mark{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,var(--amber),var(--amber-dim));display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-.brand h1{font-family:var(--font-display);font-size:19px;font-weight:700;}
-.brand p{font-size:12px;color:var(--muted);font-family:var(--font-mono);margin-top:2px;}
-.status-pill{font-family:var(--font-mono);font-size:11px;padding:7px 13px;border-radius:20px;background:var(--surface);border:1px solid var(--border);color:var(--text-dim);display:flex;align-items:center;gap:7px;}
-.status-pill .dot{width:7px;height:7px;border-radius:50%;background:var(--muted2);}
-.status-pill.active .dot{background:var(--amber);box-shadow:0 0 8px var(--amber);}
-
-/* MATERIA TABS */
-.materias-nav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;align-items:center;}
-.mat-tab{background:var(--surface);border:1px solid var(--border);color:var(--muted);padding:8px 16px;border-radius:20px;font-size:12.5px;cursor:pointer;font-family:var(--font-body);font-weight:500;transition:all .15s;}
-.mat-tab.active{background:var(--amber-soft);border-color:var(--amber);color:var(--amber);}
-.mat-tab:hover{border-color:var(--amber);}
-.btn-nueva{background:transparent;border:1.5px dashed var(--border);color:var(--muted2);padding:8px 14px;border-radius:20px;font-size:12px;cursor:pointer;font-family:var(--font-body);}
-.btn-nueva:hover{border-color:var(--amber);color:var(--amber);}
-
-/* CARDS */
-.card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px 22px;}
-.card-title{font-family:var(--font-display);font-size:14.5px;font-weight:600;margin-bottom:3px;}
-.card-sub{font-size:12px;color:var(--muted);margin-bottom:14px;}
+.brand-mark{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,var(--violet),var(--violet-dim));display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.brand-text h1{font-family:var(--font-display);font-size:19px;font-weight:700;line-height:1.1;}
+.brand-text p{font-size:11px;color:var(--muted);font-family:var(--font-mono);margin-top:2px;}
+.status-pill{font-family:var(--font-mono);font-size:11px;padding:7px 13px;border-radius:20px;background:var(--surface);border:1px solid var(--border);color:var(--text-dim);display:flex;align-items:center;gap:7px;white-space:nowrap;}
+.status-pill .dot{width:7px;height:7px;border-radius:50%;background:var(--muted2);flex-shrink:0;}
+.status-pill.active .dot{background:var(--violet);box-shadow:0 0 8px var(--violet);}
 
 /* SETUP */
-.setup-banner{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:22px 24px;margin-bottom:20px;}
+.setup-banner{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:22px 24px;margin-bottom:22px;}
 .setup-banner h2{font-family:var(--font-display);font-size:16px;margin-bottom:4px;}
 .setup-banner p{font-size:13px;color:var(--muted);margin-bottom:16px;}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
 @media(max-width:580px){.grid2{grid-template-columns:1fr;}}
 .field label{display:block;font-size:11px;color:var(--muted);margin-bottom:5px;font-family:var(--font-mono);letter-spacing:0.03em;}
-.field input,.field select{width:100%;background:var(--bg-elev);border:1px solid var(--border);border-radius:9px;padding:10px 12px;color:var(--text);font-family:var(--font-body);font-size:13.5px;}
-.field input:focus,.field select:focus{outline:none;border-color:var(--amber);}
+.field input{width:100%;background:var(--bg-elev);border:1px solid var(--border);border-radius:9px;padding:10px 12px;color:var(--text);font-family:var(--font-body);font-size:13.5px;}
+.field input:focus{outline:none;border-color:var(--violet);}
 .btn{font-family:var(--font-body);font-weight:600;font-size:13px;padding:10px 18px;border-radius:9px;border:1px solid transparent;cursor:pointer;transition:all .15s;}
-.btn-amber{background:var(--amber);color:#1A1209;}
-.btn-amber:hover{background:#FFA15E;}
+.btn-violet{background:var(--violet);color:#0F0920;}
+.btn-violet:hover{background:#BBA4FF;}
 .btn-ghost{background:transparent;color:var(--text-dim);border-color:var(--border);}
 .btn-ghost:hover{background:var(--surface2);}
 .btn-sm{padding:7px 12px;font-size:12px;}
 .btn-row{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;}
-.btn-red{background:transparent;color:var(--red);border-color:var(--red);border:1px solid;}
-.btn-red:hover{background:var(--red-soft);}
 
 /* HERO */
-.hero{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:24px;margin-bottom:20px;}
+.hero{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:24px 24px 20px;margin-bottom:20px;}
 .hero-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;flex-wrap:wrap;gap:10px;}
-.hero-title{font-family:var(--font-display);font-size:14px;color:var(--muted);}
-.hero-streak{font-family:var(--font-display);font-size:34px;font-weight:700;color:var(--amber);line-height:1;}
+.hero-title{font-family:var(--font-display);font-size:14px;color:var(--muted);font-weight:500;}
+.hero-streak{font-family:var(--font-display);font-size:34px;font-weight:700;color:var(--violet);line-height:1;}
 .hero-streak span{font-size:13px;color:var(--muted);font-weight:500;margin-left:6px;}
 .chain{display:flex;gap:5px;flex-wrap:wrap;}
 .link{width:22px;height:22px;border-radius:6px;background:var(--bg-elev);border:1px solid var(--border);flex-shrink:0;}
-.link.done{background:var(--amber);border-color:var(--amber);}
-.link.today{border-color:var(--amber);box-shadow:0 0 0 2px var(--amber-soft);}
+.link.done{background:var(--violet);border-color:var(--violet);}
+.link.today{border-color:var(--violet);box-shadow:0 0 0 2px var(--violet-soft);}
 .link.miss{background:var(--red-soft);border-color:var(--red);}
 .chain-labels{display:flex;justify-content:space-between;font-size:10px;color:var(--muted2);font-family:var(--font-mono);margin-top:6px;}
 
 /* GRID */
-.grid-main{display:grid;grid-template-columns:1.1fr 1fr;gap:18px;margin-bottom:18px;}
+.grid-main{display:grid;grid-template-columns:1.2fr 1fr;gap:18px;margin-bottom:18px;}
 @media(max-width:680px){.grid-main{grid-template-columns:1fr;}}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px 22px;}
+.card-title{font-family:var(--font-display);font-size:14.5px;font-weight:600;margin-bottom:3px;}
+.card-sub{font-size:12px;color:var(--muted);margin-bottom:14px;}
 
-/* TAREA HOY */
-.hoy-box{background:var(--bg-elev);border:1px solid var(--border-soft);border-radius:12px;padding:14px;margin-bottom:12px;}
-.hoy-box.done{border-color:var(--teal);background:var(--teal-soft);}
-.hoy-label{font-size:10.5px;color:var(--muted);font-family:var(--font-mono);letter-spacing:0.04em;margin-bottom:6px;}
-.hoy-text{font-size:14.5px;font-weight:500;margin-bottom:14px;}
-.check-btn{width:100%;background:var(--teal);color:#08221E;border:none;border-radius:9px;padding:11px;font-weight:700;font-size:13.5px;cursor:pointer;font-family:var(--font-body);}
-.check-btn:hover{background:#4FE3D0;}
-.check-btn.done{background:var(--surface2);color:var(--teal);}
-.skip-btn{background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:9px;padding:11px 14px;cursor:pointer;font-size:12.5px;}
-.check-row{display:flex;gap:10px;}
+/* LIBRO */
+.libro-titulo{font-family:var(--font-display);font-size:17px;font-weight:700;line-height:1.2;margin-bottom:2px;}
+.libro-autor{font-size:11.5px;color:var(--muted);font-family:var(--font-mono);margin-bottom:14px;}
+.progreso-label{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:5px;}
+.progreso-track{height:6px;background:var(--surface3);border-radius:3px;overflow:hidden;margin-bottom:14px;}
+.progreso-fill{height:100%;background:var(--violet);border-radius:3px;transition:width .4s ease;}
+.pag-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px;}
+.pag-row input{width:110px;background:var(--bg-elev);border:1px solid var(--border);border-radius:8px;padding:8px 10px;color:var(--text);font-family:var(--font-mono);font-size:13px;text-align:center;}
+.pag-row input:focus{outline:none;border-color:var(--violet);}
+
+/* HOY */
+.hoy-box{background:var(--bg-elev);border:1px solid var(--border-soft);border-radius:12px;padding:14px;}
+.hoy-box.done{border-color:var(--violet);background:var(--violet-soft);}
+.hoy-label{font-size:10.5px;color:var(--muted);font-family:var(--font-mono);letter-spacing:0.04em;margin-bottom:8px;}
+.hoy-pags-done{font-size:22px;font-weight:700;font-family:var(--font-display);color:var(--violet);line-height:1;margin-bottom:10px;}
+.hoy-pags-done span{font-size:12px;color:var(--muted);font-weight:400;margin-left:4px;}
+.hoy-input{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-family:var(--font-mono);font-size:13px;margin-bottom:10px;}
+.hoy-input:focus{outline:none;border-color:var(--violet);}
+.check-btn{width:100%;background:var(--violet);color:#0F0920;border:none;border-radius:9px;padding:11px;font-weight:700;font-size:13.5px;cursor:pointer;font-family:var(--font-body);}
+.check-btn:hover{background:#BBA4FF;}
+.check-btn.done{background:var(--surface2);color:var(--violet);}
 
 /* STATS */
 .stat-row{display:flex;gap:10px;margin-bottom:10px;}
 .stat-box{flex:1;background:var(--bg-elev);border-radius:11px;padding:12px;text-align:center;}
-.stat-num{font-family:var(--font-mono);font-size:20px;font-weight:600;color:var(--amber);}
+.stat-num{font-family:var(--font-mono);font-size:20px;font-weight:600;color:var(--violet);}
 .stat-lbl{font-size:10px;color:var(--muted);margin-top:3px;}
-
-/* TEMPORIZADOR */
-.timer-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px 22px;margin-bottom:18px;}
-.timer-display{font-family:var(--font-mono);font-size:52px;font-weight:600;color:var(--amber);text-align:center;letter-spacing:0.04em;margin:12px 0;}
-.timer-display.running{color:var(--teal);}
-.timer-display.done{color:var(--red);}
-.timer-controls{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:14px;}
-.timer-btn{background:var(--amber);color:#1A1209;border:none;border-radius:9px;padding:10px 22px;font-weight:700;font-size:13px;cursor:pointer;font-family:var(--font-body);}
-.timer-btn:hover{background:#FFA15E;}
-.timer-btn.secondary{background:var(--surface2);color:var(--text-dim);border:1px solid var(--border);}
-.timer-settings{display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap;}
-.timer-settings label{font-size:11.5px;color:var(--muted);}
-.timer-settings input{width:70px;background:var(--bg-elev);border:1px solid var(--border);border-radius:8px;padding:7px 10px;color:var(--text);font-family:var(--font-mono);font-size:13px;text-align:center;}
-.timer-settings input:focus{outline:none;border-color:var(--amber);}
-.timer-progress{height:4px;background:var(--border);border-radius:2px;overflow:hidden;margin:0 0 16px;}
-.timer-progress-fill{height:100%;background:var(--amber);border-radius:2px;transition:width .5s linear;}
-
-/* PLAN SEMANAL */
-.week-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border-soft);}
-.week-row:last-child{border-bottom:none;}
-.week-num{font-family:var(--font-mono);font-size:11px;color:var(--muted2);width:30px;flex-shrink:0;}
-.week-check{width:20px;height:20px;border-radius:6px;border:1.5px solid var(--border);cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
-.week-check.checked{background:var(--teal);border-color:var(--teal);}
-.week-check.checked::after{content:'✓';color:#08221E;font-size:12px;font-weight:700;}
-.week-input{flex:1;background:transparent;border:none;color:var(--text-dim);font-size:13px;font-family:var(--font-body);padding:4px 0;}
-.week-input:focus{outline:none;}
-.week-input::placeholder{color:var(--muted2);}
-
-/* MODO EXAMEN */
-.exam-item{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text-dim);margin-bottom:10px;}
-.exam-item input{accent-color:var(--amber);width:16px;height:16px;flex-shrink:0;}
-.exam-item.checked label{text-decoration:line-through;color:var(--muted2);}
-
-/* MATERIAL IA */
-.upload-zone{border:1.5px dashed var(--border);border-radius:12px;padding:22px;text-align:center;cursor:pointer;background:var(--bg-elev);}
-.upload-zone:hover{border-color:var(--amber);}
-.upload-zone.has-file{border-color:var(--teal);border-style:solid;}
-.action-tabs{display:flex;gap:8px;margin:14px 0 10px;flex-wrap:wrap;}
-.action-tab{background:var(--bg-elev);border:1px solid var(--border);color:var(--muted);padding:7px 13px;border-radius:9px;font-size:12.5px;cursor:pointer;font-family:var(--font-body);}
-.action-tab.active{background:var(--amber-soft);border-color:var(--amber);color:var(--amber);}
-.gen-btn{width:100%;background:var(--amber);color:#1A1209;border:none;border-radius:9px;padding:11px;font-weight:700;font-size:13px;cursor:pointer;font-family:var(--font-body);margin-top:10px;}
-.gen-btn:disabled{opacity:0.6;cursor:wait;}
-.output-box{margin-top:14px;background:var(--bg-elev);border:1px solid var(--border-soft);border-radius:12px;padding:16px;font-size:13.5px;line-height:1.7;color:var(--text-dim);white-space:pre-wrap;max-height:460px;overflow-y:auto;}
-.output-box:empty{display:none;}
-.loading-row{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:12.5px;margin-top:12px;}
-.spinner{width:14px;height:14px;border:2px solid var(--border);border-top-color:var(--amber);border-radius:50%;animation:spin .7s linear infinite;}
-@keyframes spin{to{transform:rotate(360deg);}}
-.file-pill{display:inline-flex;align-items:center;gap:8px;background:var(--teal-soft);color:var(--teal);padding:6px 12px;border-radius:20px;font-size:12px;font-family:var(--font-mono);margin-top:10px;}
-.file-pill button{background:none;border:none;color:var(--teal);cursor:pointer;}
-
 .muted-note{font-size:12px;color:var(--muted2);margin-top:10px;line-height:1.6;}
+
+/* FRASES */
+.cita-form{background:var(--bg-elev);border:1px solid var(--border-soft);border-radius:12px;padding:14px;margin-bottom:14px;}
+.cita-form input[type=text]{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-family:var(--font-body);font-size:13.5px;margin-bottom:8px;}
+.cita-form input[type=text]:focus{outline:none;border-color:var(--violet);}
+.cita-form-bottom{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+.cita-form-bottom input[type=text]{flex:1;min-width:80px;margin-bottom:0;}
+.pag-input{max-width:70px!important;}
+
+/* UPLOAD FOTO */
+.foto-upload{display:flex;align-items:center;gap:8px;}
+.foto-upload-btn{display:flex;align-items:center;gap:6px;background:var(--surface2);border:1px solid var(--border);color:var(--text-dim);padding:7px 12px;border-radius:8px;cursor:pointer;font-size:12px;font-family:var(--font-body);font-weight:500;}
+.foto-upload-btn:hover{border-color:var(--violet);color:var(--violet);}
+.foto-preview{width:36px;height:36px;border-radius:6px;object-fit:cover;border:1px solid var(--border);}
+.foto-clear{background:none;border:none;color:var(--muted2);cursor:pointer;font-size:13px;padding:2px 5px;}
+.foto-clear:hover{color:var(--red);}
+
+/* CITA ITEM */
+.cita-item{padding:14px 0;border-bottom:1px solid var(--border-soft);}
+.cita-item:last-child{border-bottom:none;}
+.cita-body{display:flex;gap:12px;align-items:flex-start;}
+.cita-bar{width:3px;border-radius:2px;background:var(--violet);flex-shrink:0;min-height:40px;align-self:stretch;}
+.cita-content{flex:1;}
+.cita-text{font-size:13.5px;color:var(--text-dim);line-height:1.6;margin-bottom:6px;}
+.cita-foto{max-width:100%;border-radius:10px;margin-bottom:8px;border:1px solid var(--border);cursor:pointer;}
+.cita-foto:hover{opacity:.9;}
+.cita-footer{display:flex;justify-content:space-between;align-items:center;}
+.cita-ref{font-family:var(--font-mono);font-size:10.5px;color:var(--muted2);}
+.cita-del{background:none;border:none;color:var(--muted2);cursor:pointer;font-size:12px;padding:2px 6px;}
+.cita-del:hover{color:var(--red);}
+
+/* HISTORIAL */
+.hist-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border-soft);}
+.hist-item:last-child{border-bottom:none;}
+.hist-num{font-family:var(--font-mono);font-size:10.5px;color:var(--muted2);width:20px;flex-shrink:0;}
+.hist-info{flex:1;}.hist-titulo{font-size:13.5px;font-weight:600;}.hist-autor{font-size:11px;color:var(--muted);margin-top:1px;}
+.hist-mes{font-family:var(--font-mono);font-size:10px;color:var(--violet);background:var(--violet-soft);padding:3px 8px;border-radius:10px;white-space:nowrap;}
+.hist-add{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;}
+.hist-add input{flex:1;min-width:80px;background:var(--bg-elev);border:1px solid var(--border);border-radius:8px;padding:8px 10px;color:var(--text);font-size:12.5px;}
+.hist-add input:focus{outline:none;border-color:var(--violet);}
+
+/* LIGHTBOX */
+.lightbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:1000;align-items:center;justify-content:center;cursor:zoom-out;}
+.lightbox.open{display:flex;}
+.lightbox img{max-width:90vw;max-height:90vh;border-radius:12px;object-fit:contain;}
+
+.empty{text-align:center;padding:24px;color:var(--muted2);font-size:12.5px;}
 .hidden{display:none!important;}
 footer{text-align:center;margin-top:32px;}
 .footer-link{font-size:11px;color:var(--muted2);font-family:var(--font-mono);cursor:pointer;}
@@ -162,207 +176,154 @@ footer{text-align:center;margin-top:32px;}
 <header>
   <div class="brand">
     <div class="brand-mark">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1A1209" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9 12l2 2 4-4"/></svg>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0F0920" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
     </div>
-    <div>
-      <h1>Estudia</h1>
-      <p id="header-sub">sin materias configuradas</p>
+    <div class="brand-text">
+      <h1 id="header-titulo">Lectura</h1>
+      <p id="header-sub">configurá tu libro</p>
     </div>
   </div>
   <div class="status-pill" id="status-pill"><span class="dot"></span><span id="status-text">sin configurar</span></div>
 </header>
 
-<!-- SELECTOR DE MATERIAS -->
-<div class="materias-nav" id="materias-nav">
-  <button class="btn-nueva" onclick="abrirNuevaMateria()">+ Nueva materia</button>
-</div>
-
-<!-- SETUP NUEVA MATERIA -->
-<div class="setup-banner hidden" id="setup-banner">
-  <h2 id="setup-title">Nueva materia</h2>
-  <p>Agregá los datos de la materia. Podés dejar las fechas vacías si todavía no las sabés.</p>
+<!-- SETUP -->
+<div class="setup-banner" id="setup-banner">
+  <h2>¿Qué estás leyendo?</h2>
+  <p>Cargá el libro y en qué página estás. El título va a aparecer como nombre de la app.</p>
   <div class="grid2">
-    <div class="field" style="grid-column:1/-1"><label>Nombre de la materia</label><input type="text" id="in-materia" placeholder="Ej: Macro 2, Estadística..."></div>
-    <div class="field"><label>Fecha de inicio de cursada</label><input type="date" id="in-fecha-inicio"></div>
-    <div class="field"><label>Duración (semanas)</label><input type="number" id="in-semanas" value="16" min="4" max="30"></div>
-    <div class="field"><label>Tiempo de estudio diario recomendado (min)</label><input type="number" id="in-minutos" value="45" min="15" max="180"></div>
+    <div class="field" style="grid-column:1/-1"><label>Título</label><input type="text" id="in-titulo" placeholder="La canción de nosotros"></div>
+    <div class="field" style="grid-column:1/-1"><label>Autor/a</label><input type="text" id="in-autor" placeholder="Eduardo Galeano"></div>
+    <div class="field"><label>Página donde estás</label><input type="number" id="in-pag-actual" placeholder="0" min="0"></div>
+    <div class="field"><label>Total de páginas</label><input type="number" id="in-pag-total" placeholder="200" min="1"></div>
   </div>
   <div class="btn-row">
-    <button class="btn btn-amber" onclick="guardarMateria()">Guardar</button>
-    <button class="btn btn-ghost" onclick="cerrarSetup()">Cancelar</button>
-    <button class="btn btn-red btn-sm hidden" id="btn-eliminar-mat" onclick="eliminarMateriaActual()">Eliminar materia</button>
+    <button class="btn btn-violet" onclick="guardarSetup()">Activar</button>
   </div>
 </div>
 
-<!-- CONTENIDO MATERIA ACTIVA -->
-<div id="contenido-materia" class="hidden">
-
-  <!-- HERO CADENA -->
-  <div class="hero" id="hero-section">
-    <div class="hero-top">
-      <div>
-        <div class="hero-title">Racha de estudio</div>
-        <div class="hero-streak" id="streak-num">0<span>días seguidos sin cortar</span></div>
-      </div>
-      <button class="btn btn-ghost btn-sm" onclick="editarMateriaActual()">⚙ editar</button>
-    </div>
-    <div class="chain" id="chain-container"></div>
-    <div class="chain-labels"><span id="chain-start-label"></span><span>Hoy</span></div>
-  </div>
-
-  <!-- TEMPORIZADOR -->
-  <div class="timer-card">
-    <div class="card-title">Temporizador de estudio</div>
-    <div class="card-sub" id="timer-sub">Tiempo recomendado para hoy: <strong id="timer-recom">45 min</strong></div>
-    <div class="timer-progress"><div class="timer-progress-fill" id="timer-bar" style="width:0%"></div></div>
-    <div class="timer-display" id="timer-display">45:00</div>
-    <div class="timer-controls">
-      <button class="timer-btn" id="timer-btn-start" onclick="toggleTimer()">▶ Iniciar</button>
-      <button class="timer-btn secondary" onclick="resetTimer()">↺ Reiniciar</button>
-    </div>
-    <div class="timer-settings">
-      <label>Cambiar duración:</label>
-      <input type="number" id="timer-custom-min" value="45" min="1" max="180" onchange="setCustomTimer()">
-      <label>minutos</label>
-    </div>
-    <div id="session-log-today" style="margin-top:14px;font-size:12px;color:var(--muted);font-family:var(--font-mono);text-align:center;"></div>
-  </div>
-
-  <!-- ALERTA RACHA -->
-  <div id="alerta-racha" class="hidden" style="background:var(--amber-soft);border:1px solid var(--amber);border-radius:12px;padding:14px 18px;margin-bottom:18px;display:flex;align-items:center;gap:12px;">
-    <span style="font-size:20px">⚠️</span>
+<!-- HERO -->
+<div class="hero hidden" id="hero-section">
+  <div class="hero-top">
     <div>
-      <div style="font-weight:600;font-size:14px;color:var(--amber)">¡Cadena en peligro!</div>
-      <div style="font-size:12.5px;color:var(--text-dim);margin-top:2px">Todavía no marcaste el día de hoy. Hacé aunque sea 10 minutos ahora.</div>
+      <div class="hero-title">Racha de lectura</div>
+      <div class="hero-streak" id="streak-num">0<span>días seguidos sin cortar</span></div>
     </div>
+    <button class="btn btn-ghost btn-sm" onclick="abrirConfig()">⚙ editar libro</button>
   </div>
+  <div class="chain" id="chain-container"></div>
+  <div class="chain-labels"><span id="chain-start"></span><span>Hoy</span></div>
+</div>
 
-  <!-- BARRA PROGRESO CUATRIMESTRE -->
-  <div class="card" style="margin-bottom:18px" id="progreso-cuatri-card">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-      <div style="font-family:var(--font-display);font-size:14px;font-weight:600;">Avance del cuatrimestre</div>
-      <div style="font-family:var(--font-mono);font-size:12px;color:var(--amber)" id="cuatri-pct">0%</div>
-    </div>
-    <div style="height:8px;background:var(--surface3,#2E3544);border-radius:4px;overflow:hidden;margin-bottom:8px;">
-      <div id="cuatri-bar" style="height:100%;background:var(--amber);border-radius:4px;transition:width .5s ease;width:0%"></div>
-    </div>
-    <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted2);font-family:var(--font-mono);">
-      <span id="cuatri-inicio">—</span>
-      <span id="cuatri-semanas-txt">—</span>
-      <span id="cuatri-fin">—</span>
-    </div>
-  </div>
-
-  <!-- GRID: HOY + STATS -->
-  <div class="grid-main">
-    <div class="card">
-      <div class="card-title">Tarea de hoy</div>
-      <div class="card-sub">Una sola cosa concreta. No "estudiar todo" — solo esto.</div>
-      <div class="hoy-box" id="hoy-box">
-        <div class="hoy-label">TAREA</div>
-        <div class="hoy-text" id="hoy-text">Sin definir — tocá Editar</div>
-        <div class="check-row">
-          <button class="check-btn" id="check-btn" onclick="marcarHoy()">Hecho ✓</button>
-          <button class="skip-btn" onclick="editarTarea()">Editar</button>
-        </div>
-      </div>
-      <div id="tarea-edit" class="hidden">
-        <input type="text" id="in-tarea" placeholder="Ej: Leer 5 páginas del tema 1..." style="width:100%;background:var(--bg-elev);border:1px solid var(--border);border-radius:9px;padding:10px 12px;color:var(--text);font-family:var(--font-body);font-size:13px;margin-bottom:10px;">
-        <button class="btn btn-amber" onclick="guardarTarea()" style="width:100%">Guardar tarea</button>
-      </div>
-      <div class="muted-note" id="hoy-note"></div>
-
-      <!-- NOTAS RÁPIDAS -->
-      <div style="margin-top:16px;border-top:1px solid var(--border-soft);padding-top:14px;">
-        <div style="font-size:11px;color:var(--muted);font-family:var(--font-mono);letter-spacing:0.04em;margin-bottom:8px;">NOTA RÁPIDA DEL DÍA</div>
-        <textarea id="nota-rapida" placeholder="¿Qué entendiste? ¿Dónde quedaste? ¿Qué no te cerró?" style="width:100%;background:var(--bg-elev);border:1px solid var(--border);border-radius:9px;padding:10px 12px;color:var(--text);font-family:var(--font-body);font-size:13px;resize:vertical;min-height:70px;line-height:1.5;" oninput="guardarNotaRapida(this.value)"></textarea>
-        <div style="font-size:11px;color:var(--muted2);margin-top:5px">Se guarda automáticamente. Cuando retomés mañana, sabés por dónde arrancar.</div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-title">Estadísticas</div>
-      <div class="card-sub">Lo que importa es no cortar.</div>
-      <div class="stat-row">
-        <div class="stat-box"><div class="stat-num" id="s-racha">0</div><div class="stat-lbl">racha actual</div></div>
-        <div class="stat-box"><div class="stat-num" id="s-mejor">0</div><div class="stat-lbl">mejor racha</div></div>
-      </div>
-      <div class="stat-row">
-        <div class="stat-box"><div class="stat-num" id="s-total">0</div><div class="stat-lbl">días totales</div></div>
-        <div class="stat-box"><div class="stat-num" id="s-mins">0</div><div class="stat-lbl">min hoy</div></div>
-      </div>
-      <!-- HISTORIAL SESIONES -->
-      <div style="margin-top:14px;border-top:1px solid var(--border-soft);padding-top:12px;">
-        <div style="font-size:11px;color:var(--muted);font-family:var(--font-mono);margin-bottom:8px;">SESIONES RECIENTES</div>
-        <div id="sesiones-lista" style="font-size:12px;color:var(--text-dim);font-family:var(--font-mono);line-height:2;"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- PLAN SEMANAL -->
-  <div class="card" style="margin-bottom:18px">
-    <div class="card-title">Plan semana a semana</div>
-    <div class="card-sub">Cargá el tema de cada semana manualmente, o subí el PDF del programa y lo completamos automáticamente.</div>
-    <div style="margin-bottom:14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
-      <label style="display:flex;align-items:center;gap:8px;background:var(--amber-soft);border:1px solid var(--amber);color:var(--amber);padding:8px 14px;border-radius:9px;cursor:pointer;font-size:12.5px;font-weight:600;">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-        Subir programa (PDF)
-        <input type="file" id="cronograma-file" accept=".pdf,.txt" class="hidden" onchange="cargarCronograma(event)">
-      </label>
-      <span id="cronograma-status" style="font-size:12px;color:var(--muted);font-family:var(--font-mono);"></span>
-    </div>
-    <div id="cronograma-loading" class="hidden" style="display:flex;align-items:center;gap:10px;color:var(--muted);font-size:12.5px;margin-bottom:12px;"><div class="spinner"></div><span>Leyendo el programa y completando el plan...</span></div>
-    <div id="weeks-list"></div>
-  </div>
-
-  <!-- MATERIAL IA -->
+<!-- GRID PRINCIPAL -->
+<div class="grid-main hidden" id="main-grid">
+  <!-- LIBRO + HOY -->
   <div class="card">
-    <div class="card-title">Material de estudio</div>
-    <div class="card-sub">Subí un apunte (PDF o .txt) y generá resúmenes o ejercicios basados en ese material.</div>
-    <div class="upload-zone" id="upload-zone" onclick="document.getElementById('file-input').click()">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:block;margin:0 auto 8px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-      <div style="font-size:13px;color:var(--text-dim)" id="up-text">Hacé clic para subir un archivo</div>
-      <div style="font-size:11px;color:var(--muted2);margin-top:3px">PDF o .txt</div>
+    <div class="card-title">Libro actual</div>
+    <div class="card-sub">Actualizá la página cuando termines de leer hoy.</div>
+    <div class="libro-titulo" id="disp-titulo">—</div>
+    <div class="libro-autor" id="disp-autor">—</div>
+    <div class="progreso-label"><span>Página <span id="disp-pag">0</span> de <span id="disp-total">—</span></span><span id="disp-pct">0%</span></div>
+    <div class="progreso-track"><div class="progreso-fill" id="disp-barra" style="width:0%"></div></div>
+    <div class="pag-row">
+      <input type="number" id="in-pag-nueva" placeholder="Pág. actual" min="0">
+      <button class="btn btn-ghost btn-sm" onclick="actualizarPag()">Actualizar</button>
+      <button class="btn btn-ghost btn-sm" onclick="terminarLibro()">Terminé</button>
     </div>
-    <input type="file" id="file-input" accept=".pdf,.txt" class="hidden" onchange="handleFile(event)">
-    <div id="file-pill-container"></div>
-    <div class="action-tabs">
-      <button class="action-tab active" onclick="setAction('resumen',this)">Resumen</button>
-      <button class="action-tab" onclick="setAction('ejercicios',this)">Ejercicios</button>
-      <button class="action-tab" onclick="setAction('explicacion',this)">Explicame esto</button>
+    <div class="hoy-box" id="hoy-box">
+      <div class="hoy-label">PÁGINAS HOY</div>
+      <div id="hoy-done-display" class="hidden"><div class="hoy-pags-done" id="hoy-num">0<span>páginas leídas hoy</span></div></div>
+      <div id="hoy-input-section">
+        <input type="number" class="hoy-input" id="in-pags-hoy" placeholder="¿Cuántas páginas leíste hoy?" min="1">
+      </div>
+      <button class="check-btn" id="btn-hoy" onclick="marcarHoy()">Marcar día ✓</button>
     </div>
-    <input type="text" id="topic-input" placeholder="Tema específico (opcional)" style="width:100%;background:var(--bg-elev);border:1px solid var(--border);border-radius:9px;padding:9px 12px;color:var(--text);font-family:var(--font-body);font-size:13px;">
-    <button class="gen-btn" id="gen-btn" onclick="generar()">Generar</button>
-    <div id="loading-row" class="loading-row hidden"><div class="spinner"></div><span>Pensando...</span></div>
-    <div class="output-box" id="output-box"></div>
+    <div class="muted-note" id="hoy-note"></div>
   </div>
 
+  <!-- STATS + HISTORIAL -->
+  <div>
+    <div class="card" style="margin-bottom:18px">
+      <div class="card-title">Estadísticas</div>
+      <div class="card-sub">Un libro por mes, sin cortar la cadena.</div>
+      <div class="stat-row"><div class="stat-box"><div class="stat-num" id="s-racha">0</div><div class="stat-lbl">racha actual</div></div><div class="stat-box"><div class="stat-num" id="s-mejor">0</div><div class="stat-lbl">mejor racha</div></div></div>
+      <div class="stat-row"><div class="stat-box"><div class="stat-num" id="s-total">0</div><div class="stat-lbl">días totales</div></div><div class="stat-box"><div class="stat-num" id="s-pags">0</div><div class="stat-lbl">págs. este mes</div></div></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Libros terminados</div>
+      <div id="hist-lista"><div class="empty">Todavía ninguno — viene.</div></div>
+      <div class="hist-add">
+        <input type="text" id="in-hist-t" placeholder="Título...">
+        <input type="text" id="in-hist-a" placeholder="Autor...">
+        <button class="btn btn-ghost btn-sm" onclick="agregarHist()">+ Agregar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FRASES + FOTOS -->
+<div class="card hidden" id="citas-section">
+  <div class="card-title">Frases y páginas</div>
+  <div class="card-sub">Anotá una frase o subí una foto de la página que te impactó.</div>
+  <div class="cita-form">
+    <input type="text" id="in-cita" placeholder="Escribí una frase o idea del libro...">
+    <div class="cita-form-bottom">
+      <input type="text" id="in-cita-libro" placeholder="Libro (auto)" class="hidden">
+      <input type="text" id="in-cita-pag" placeholder="Página" class="pag-input">
+      <div class="foto-upload">
+        <label class="foto-upload-btn" for="in-foto-upload">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          Foto
+        </label>
+        <input type="file" id="in-foto-upload" accept="image/*" class="hidden" onchange="previewFoto(event)">
+        <img id="foto-preview" class="foto-preview hidden" alt="preview">
+        <button id="foto-clear" class="foto-clear hidden" onclick="clearFoto()">✕</button>
+      </div>
+      <button class="btn btn-violet btn-sm" onclick="guardarCita()">Guardar</button>
+    </div>
+  </div>
+  <div id="citas-lista"><div class="empty">Todavía no guardaste nada.</div></div>
+</div>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <img id="lightbox-img" src="" alt="foto ampliada">
 </div>
 
 <footer>
-  <span class="footer-link" onclick="reiniciarTodo()">reiniciar todos los datos</span>
+  <span class="footer-link" onclick="descargarBackup()">⬇ descargar backup</span>
+  &nbsp;·&nbsp;
+  <span class="footer-link" onclick="reiniciar()">reiniciar todos los datos</span>
 </footer>
 </div>
 
 <script>
-// ===== ESTADO =====
-let materias = []; // [{id, nombre, fechaInicio, semanas, minutos, dias:{}, tareaHoy:'', semanasPlan:[], examChecklist:[]}]
-let materiaActivaId = null;
+const KEY='cadena-lectura-v2';
+let state={libro:null,dias:{},citas:[],historial:[]};
+let fotoTempBase64=null;
+let fotoTempUrl=null; // URL de Cloudinary después de subir
 let _db=null,_col=null,_getDocs=null,_addDoc=null,_deleteDoc=null,_doc=null,_setDoc=null,_getDoc=null;
 
-const EXAM_DEFAULT = [
-  {t:'Hice al menos un examen de años anteriores',c:false},
-  {t:'Repasé mis propios resúmenes',c:false},
-  {t:'Dormí 7+ horas la noche anterior',c:false},
-  {t:'Comí algo antes de entrar',c:false},
-  {t:'Anoté los 3 temas que más me cuestan',c:false},
-  {t:'Llegué con margen, no corriendo',c:false}
-];
+// Cloudinary config
+const CLOUDINARY={
+  cloudName:'dwzvkixnt',
+  uploadPreset:'lectura_unsigned' // preset sin firma — lo creamos abajo
+};
+
+async function subirFotoCloudinary(file){
+  const formData=new FormData();
+  formData.append('file', file);
+  formData.append('upload_preset', CLOUDINARY.uploadPreset);
+  formData.append('folder','lectura');
+  const resp=await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY.cloudName}/image/upload`,{method:'POST',body:formData});
+  if(!resp.ok) throw new Error('Error subiendo foto');
+  const data=await resp.json();
+  return data.secure_url;
+}
 
 function todayStr(){return new Date().toISOString().slice(0,10);}
-function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2);}
+function fmtMes(m){if(!m)return'';const[y,mo]=m.split('-');const ms=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];return ms[Number(mo)-1]+' '+y;}
 
-// ===== FIREBASE =====
+// Firebase init
 (async()=>{
   const {initializeApp}=await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js');
   const {getFirestore,collection,getDocs,addDoc,deleteDoc,doc,setDoc,getDoc}=await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js');
@@ -374,486 +335,346 @@ function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2
     messagingSenderId:"870288925496",
     appId:"1:870288925496:web:7979e7a6c60334aad197cd"
   });
-  _db=getFirestore(app);_col=collection;_getDocs=getDocs;_addDoc=addDoc;_deleteDoc=deleteDoc;_doc=doc;_setDoc=setDoc;_getDoc=getDoc;
+  _db=getFirestore(app);
+  _col=collection;_getDocs=getDocs;_addDoc=addDoc;_deleteDoc=deleteDoc;_doc=doc;_setDoc=setDoc;_getDoc=getDoc;
   await cargarDesdeFirebase();
 })();
 
 async function cargarDesdeFirebase(){
   try{
-    const snap=await _getDoc(_doc(_db,'estudio','estado'));
-    if(snap.exists()){
-      const d=snap.data();
-      materias=d.materias||[];
-      materiaActivaId=d.materiaActivaId||null;
-    }else{
-      // fallback localStorage
-      const raw=localStorage.getItem('estudia_v2');
-      if(raw){const d=JSON.parse(raw);materias=d.materias||[];materiaActivaId=d.materiaActivaId||null;}
-    }
+    // Cargar estado principal (libro + dias + historial)
+    const estadoDoc=await _getDoc(_doc(_db,'lectura','estado'));
+    if(estadoDoc.exists()) state={...state,...estadoDoc.data()};
+
+    // Cargar citas
+    const citasSnap=await _getDocs(_col(_db,'lectura_citas'));
+    state.citas=[];
+    citasSnap.forEach(d=>state.citas.push({id:d.id,...d.data()}));
+    state.citas.sort((a,b)=>b.fecha?.localeCompare(a.fecha||'')||0);
+
+    render();
   }catch(e){
-    const raw=localStorage.getItem('estudia_v2');
-    if(raw){const d=JSON.parse(raw);materias=d.materias||[];materiaActivaId=d.materiaActivaId||null;}
+    console.error('Firebase error:',e);
+    // Fallback a localStorage
+    try{const r=localStorage.getItem(KEY);if(r)state=JSON.parse(r);}catch(e2){}
+    render();
   }
-  if(materias.length>0&&!materiaActivaId) materiaActivaId=materias[0].id;
-  render();
 }
 
-async function saveState(){
-  const data={materias,materiaActivaId};
-  localStorage.setItem('estudia_v2',JSON.stringify(data));
-  if(_db&&_doc&&_setDoc) try{await _setDoc(_doc(_db,'estudio','estado'),data);}catch(e){}
+async function save(){
+  try{
+    await _setDoc(_doc(_db,'lectura','estado'),{
+      libro:state.libro,dias:state.dias,historial:state.historial
+    });
+    localStorage.setItem(KEY,JSON.stringify(state)); // backup local
+  }catch(e){
+    localStorage.setItem(KEY,JSON.stringify(state));
+  }
 }
 
-function getMateriaActiva(){return materias.find(m=>m.id===materiaActivaId)||null;}
-
-// ===== MATERIAS =====
-function abrirNuevaMateria(){
-  document.getElementById('setup-title').textContent='Nueva materia';
-  document.getElementById('in-materia').value='';
-  document.getElementById('in-fecha-inicio').value='';
-  document.getElementById('in-semanas').value=16;
-  document.getElementById('in-minutos').value=45;
-  document.getElementById('btn-eliminar-mat').classList.add('hidden');
+/* SETUP */
+function guardarSetup(){
+  const titulo=document.getElementById('in-titulo').value.trim();
+  if(!titulo){alert('Ponele un título');return;}
+  state.libro={titulo,autor:document.getElementById('in-autor').value.trim(),pagActual:Number(document.getElementById('in-pag-actual').value)||0,pagTotal:Number(document.getElementById('in-pag-total').value)||0};
+  save();render();
+}
+function abrirConfig(){
+  if(state.libro){document.getElementById('in-titulo').value=state.libro.titulo;document.getElementById('in-autor').value=state.libro.autor;document.getElementById('in-pag-actual').value=state.libro.pagActual;document.getElementById('in-pag-total').value=state.libro.pagTotal;}
   document.getElementById('setup-banner').classList.remove('hidden');
-  document.getElementById('contenido-materia').classList.add('hidden');
+  window.scrollTo({top:0,behavior:'smooth'});
 }
-
-function editarMateriaActual(){
-  const m=getMateriaActiva();if(!m)return;
-  document.getElementById('setup-title').textContent='Editar materia';
-  document.getElementById('in-materia').value=m.nombre;
-  document.getElementById('in-fecha-inicio').value=m.fechaInicio||'';
-  document.getElementById('in-semanas').value=m.semanas||16;
-  document.getElementById('in-minutos').value=m.minutos||45;
-  document.getElementById('btn-eliminar-mat').classList.remove('hidden');
+function actualizarPag(){
+  const v=Number(document.getElementById('in-pag-nueva').value);
+  if(!v||v<0)return;
+  if(state.libro)state.libro.pagActual=v;
+  document.getElementById('in-pag-nueva').value='';
+  save();render();
+}
+function terminarLibro(){
+  if(!state.libro)return;
+  if(!confirm('¿Terminaste "'+state.libro.titulo+'"?'))return;
+  state.historial.unshift({titulo:state.libro.titulo,autor:state.libro.autor,mes:todayStr().slice(0,7)});
+  state.libro=null;save();render();
   document.getElementById('setup-banner').classList.remove('hidden');
-  document.getElementById('contenido-materia').classList.add('hidden');
 }
 
-function cerrarSetup(){
-  document.getElementById('setup-banner').classList.add('hidden');
-  if(materiaActivaId) document.getElementById('contenido-materia').classList.remove('hidden');
+/* HOY */
+function marcarHoy(){
+  const hechoHoy=!!state.dias[todayStr()];
+  if(hechoHoy){delete state.dias[todayStr()];}
+  else{
+    const pags=Number(document.getElementById('in-pags-hoy').value)||1;
+    state.dias[todayStr()]=pags;
+    if(state.libro)state.libro.pagActual=(state.libro.pagActual||0)+pags;
+  }
+  save();render();
 }
 
-async function guardarMateria(){
-  const nombre=document.getElementById('in-materia').value.trim();
-  if(!nombre){alert('Poné el nombre de la materia');return;}
-  const fechaInicio=document.getElementById('in-fecha-inicio').value;
-  const semanas=Number(document.getElementById('in-semanas').value)||16;
-  const minutos=Number(document.getElementById('in-minutos').value)||45;
-
-  const editando=getMateriaActiva()&&document.getElementById('setup-title').textContent==='Editar materia';
-  if(editando){
-    const m=getMateriaActiva();
-    m.nombre=nombre;m.fechaInicio=fechaInicio;m.semanas=semanas;m.minutos=minutos;
-    if(m.semanasPlan.length!==semanas) m.semanasPlan=Array.from({length:semanas},(_,i)=>m.semanasPlan[i]||{num:i+1,tema:'',done:false});
-  }else{
-    const nueva={
-      id:uid(),nombre,fechaInicio,semanas,minutos,
-      dias:{},tareaHoy:'',
-      semanasPlan:Array.from({length:semanas},(_,i)=>({num:i+1,tema:'',done:false})),
-      examChecklist:JSON.parse(JSON.stringify(EXAM_DEFAULT))
+/* FOTO */
+function comprimirFoto(file, maxWidth=1200, quality=0.85){
+  return new Promise((resolve)=>{
+    const reader=new FileReader();
+    reader.onload=e=>{
+      const img=new Image();
+      img.onload=()=>{
+        const canvas=document.createElement('canvas');
+        let w=img.width,h=img.height;
+        if(w>maxWidth){h=Math.round(h*maxWidth/w);w=maxWidth;}
+        canvas.width=w;canvas.height=h;
+        canvas.getContext('2d').drawImage(img,0,0,w,h);
+        canvas.toBlob(blob=>resolve(blob),'image/jpeg',quality);
+      };
+      img.src=e.target.result;
     };
-    materias.push(nueva);
-    materiaActivaId=nueva.id;
+    reader.readAsDataURL(file);
+  });
+}
+
+function previewFoto(ev){
+  const f=ev.target.files[0];if(!f)return;
+  fotoTempBase64=null;fotoTempUrl=null;
+  // Preview local inmediato
+  const reader=new FileReader();
+  reader.onload=e=>{
+    fotoTempBase64=e.target.result; // solo para preview
+    const img=document.getElementById('foto-preview');
+    img.src=fotoTempBase64;img.classList.remove('hidden');
+    document.getElementById('foto-clear').classList.remove('hidden');
+  };
+  reader.readAsDataURL(f);
+  // Guardar el file para subir a Cloudinary al guardar
+  previewFoto._file=f;
+}
+function clearFoto(){
+  fotoTempBase64=null;fotoTempUrl=null;previewFoto._file=null;
+  document.getElementById('foto-preview').classList.add('hidden');
+  document.getElementById('foto-clear').classList.add('hidden');
+  document.getElementById('in-foto-upload').value='';
+}
+function openLightbox(src){
+  document.getElementById('lightbox-img').src=src;
+  document.getElementById('lightbox').classList.add('open');
+}
+function closeLightbox(){document.getElementById('lightbox').classList.remove('open');}
+
+/* CITAS */
+async function guardarCita(){
+  const texto=document.getElementById('in-cita').value.trim();
+  const file=previewFoto._file;
+  if(!texto&&!file){alert('Escribí algo o subí una foto');return;}
+
+  // Mostrar estado de carga
+  const btn=document.querySelector('.btn-violet.btn-sm[onclick="guardarCita()"]');
+  if(btn){btn.textContent='Subiendo...';btn.disabled=true;}
+
+  let fotoUrl=null;
+  if(file){
+    try{
+      const blob=await comprimirFoto(file);
+      const compressedFile=new File([blob],file.name,{type:'image/jpeg'});
+      fotoUrl=await subirFotoCloudinary(compressedFile);
+    }catch(e){
+      alert('Error subiendo la foto. Revisá tu conexión.');
+      if(btn){btn.textContent='Guardar';btn.disabled=false;}
+      return;
+    }
   }
-  await saveState();
-  cerrarSetup();
-  render();
+
+  const cita={texto,pag:document.getElementById('in-cita-pag').value.trim(),libro:state.libro?.titulo||'',fecha:todayStr(),foto:fotoUrl||null};
+  try{
+    const ref=await _addDoc(_col(_db,'lectura_citas'),cita);
+    state.citas.unshift({id:ref.id,...cita});
+  }catch(e){
+    state.citas.unshift(cita);
+  }
+  document.getElementById('in-cita').value='';
+  document.getElementById('in-cita-pag').value='';
+  clearFoto();
+  if(btn){btn.textContent='Guardar';btn.disabled=false;}
+  renderCitas();
+}
+async function borrarCita(id){
+  if(!confirm('¿Borrar esta entrada?'))return;
+  try{await _deleteDoc(_doc(_db,'lectura_citas',id));}catch(e){}
+  state.citas=state.citas.filter(c=>c.id!==id);
+  renderCitas();
 }
 
-async function eliminarMateriaActual(){
-  const m=getMateriaActiva();if(!m)return;
-  if(!confirm(`¿Eliminar "${m.nombre}"? Se borra todo su progreso.`))return;
-  materias=materias.filter(x=>x.id!==m.id);
-  materiaActivaId=materias.length>0?materias[0].id:null;
-  await saveState();
-  cerrarSetup();
-  render();
+function renderCitas(){
+  const el=document.getElementById('citas-lista');if(!el)return;
+  if(!state.citas.length){el.innerHTML='<div class="empty">Todavía no guardaste nada.</div>';return;}
+  el.innerHTML=state.citas.map((c)=>`
+    <div class="cita-item">
+      <div class="cita-body">
+        <div class="cita-bar"></div>
+        <div class="cita-content">
+          ${c.foto?`<img src="${c.foto}" class="cita-foto" onclick="openLightbox('${c.foto}')" alt="página">`:'' }
+          ${c.texto?`<div class="cita-text">${c.texto}</div>`:''}
+          <div class="cita-footer">
+            <div class="cita-ref">${c.libro||''}${c.pag?' · p.'+c.pag:''}${c.fecha?' · '+c.fecha:''}</div>
+            <button class="cita-del" onclick="borrarCita('${c.id||''}')">✕</button>
+          </div>
+        </div>
+      </div>
+    </div>`).join('');
 }
 
-function cambiarMateria(id){
-  materiaActivaId=id;
-  saveState();
-  render();
-  resetTimer();
+/* HISTORIAL */
+function agregarHist(){
+  const t=document.getElementById('in-hist-t').value.trim();if(!t)return;
+  state.historial.unshift({titulo:t,autor:document.getElementById('in-hist-a').value.trim(),mes:todayStr().slice(0,7)});
+  document.getElementById('in-hist-t').value='';document.getElementById('in-hist-a').value='';
+  save();renderHist();
+}
+function renderHist(){
+  const el=document.getElementById('hist-lista');if(!el)return;
+  if(!state.historial.length){el.innerHTML='<div class="empty">Todavía ninguno — viene.</div>';return;}
+
+  // Agrupar por año
+  const porAnio={};
+  state.historial.forEach((l,i)=>{
+    const anio=l.mes?l.mes.slice(0,4):'Sin año';
+    if(!porAnio[anio]) porAnio[anio]=[];
+    porAnio[anio].push({...l,_idx:i});
+  });
+
+  el.innerHTML=Object.entries(porAnio).sort((a,b)=>b[0].localeCompare(a[0])).map(([anio,libros])=>`
+    <div style="margin-bottom:18px">
+      <div style="font-family:var(--font-display);font-size:13px;font-weight:700;color:var(--violet);font-family:var(--font-mono);letter-spacing:0.06em;margin-bottom:8px;display:flex;align-items:center;gap:8px;">
+        ${anio} <span style="font-size:10px;color:var(--muted2);font-weight:400;">${libros.length} libro${libros.length!==1?'s':''}</span>
+      </div>
+      ${libros.map((l)=>`
+        <div class="hist-item">
+          <div class="hist-num">${libros.indexOf(l)+1}</div>
+          <div class="hist-info"><div class="hist-titulo">${l.titulo}</div><div class="hist-autor">${l.autor||''}</div></div>
+          <div class="hist-mes">${fmtMes(l.mes)}</div>
+        </div>
+      `).join('')}
+    </div>
+  `).join('');
 }
 
-// ===== TAREA / RACHA =====
-async function marcarHoy(){
-  const m=getMateriaActiva();if(!m)return;
-  if(m.dias[todayStr()]) delete m.dias[todayStr()];
-  else m.dias[todayStr()]=true;
-  await saveState();render();
-}
-
-function editarTarea(){
-  document.getElementById('hoy-box').classList.add('hidden');
-  document.getElementById('tarea-edit').classList.remove('hidden');
-  document.getElementById('in-tarea').value=getMateriaActiva()?.tareaHoy||'';
-  document.getElementById('in-tarea').focus();
-}
-
-async function guardarTarea(){
-  const m=getMateriaActiva();if(!m)return;
-  m.tareaHoy=document.getElementById('in-tarea').value.trim();
-  await saveState();
-  document.getElementById('tarea-edit').classList.add('hidden');
-  document.getElementById('hoy-box').classList.remove('hidden');
-  render();
-}
-
-async function toggleSemana(idx){
-  const m=getMateriaActiva();if(!m)return;
-  m.semanasPlan[idx].done=!m.semanasPlan[idx].done;
-  await saveState();render();
-}
-
-async function actualizarTemaSemana(idx,val){
-  const m=getMateriaActiva();if(!m)return;
-  m.semanasPlan[idx].tema=val;
-  await saveState();
-}
-
-async function toggleExam(idx){
-  const m=getMateriaActiva();if(!m)return;
-  m.examChecklist[idx].c=!m.examChecklist[idx].c;
-  await saveState();render();
-}
-
-async function reiniciarTodo(){
-  if(!confirm('¿Seguro? Se borran TODAS las materias y rachas.'))return;
-  materias=[];materiaActivaId=null;
-  if(_db&&_doc&&_setDoc) try{await _setDoc(_doc(_db,'estudio','estado'),{materias:[],materiaActivaId:null});}catch(e){}
-  localStorage.removeItem('estudia_v2');
-  render();
-}
-
-// ===== RACHAS =====
-function calcRachas(dias){
-  const keys=Object.keys(dias).filter(d=>dias[d]).sort();
-  if(!keys.length)return{actual:0,mejor:0,total:0};
+/* RACHAS */
+function calcRachas(){
+  const dias=Object.keys(state.dias).filter(d=>state.dias[d]).sort();
+  if(!dias.length)return{actual:0,mejor:0,total:0};
   let mejor=1,run=1;
-  for(let i=1;i<keys.length;i++){
-    const diff=(new Date(keys[i]+'T12:00:00')-new Date(keys[i-1]+'T12:00:00'))/86400000;
+  for(let i=1;i<dias.length;i++){
+    const diff=(new Date(dias[i]+'T12:00:00')-new Date(dias[i-1]+'T12:00:00'))/86400000;
     if(diff===1)run++;else run=1;if(run>mejor)mejor=run;
   }
-  const s=new Set(keys);let actual=0,cur=new Date(todayStr()+'T12:00:00');
+  const s=new Set(dias);let actual=0,cur=new Date(todayStr()+'T12:00:00');
   if(!s.has(todayStr()))cur.setDate(cur.getDate()-1);
   while(s.has(cur.toISOString().slice(0,10))){actual++;cur.setDate(cur.getDate()-1);}
-  return{actual,mejor,total:keys.length};
+  return{actual,mejor,total:dias.length};
 }
+function paginasMes(){const m=todayStr().slice(0,7);return Object.entries(state.dias).filter(([d])=>d.startsWith(m)).reduce((a,[,v])=>a+v,0);}
 
-function renderChain(m){
+function renderChain(){
   const c=document.getElementById('chain-container');
   const hoy=new Date(todayStr()+'T12:00:00');
-  const start=m.fechaInicio?new Date(m.fechaInicio+'T12:00:00'):new Date(hoy);
-  const totalDias=Math.min(m.semanas*7,140);
-  const s=new Set(Object.keys(m.dias).filter(d=>m.dias[d]));
+  const s=new Set(Object.keys(state.dias).filter(d=>state.dias[d]));
   let html='';
-  for(let i=0;i<totalDias;i++){
-    const d=new Date(start);d.setDate(d.getDate()+i);
+  for(let i=55;i>=0;i--){
+    const d=new Date(hoy);d.setDate(d.getDate()-i);
     const ds=d.toISOString().slice(0,10);
     let cls='link';
     if(s.has(ds))cls+=' done';
     else if(ds===todayStr())cls+=' today';
-    else if(d<hoy&&d>=start)cls+=' miss';
+    else if(d<hoy)cls+=' miss';
     html+=`<div class="${cls}"></div>`;
   }
   c.innerHTML=html;
-  document.getElementById('chain-start-label').textContent=m.fechaInicio?new Date(m.fechaInicio+'T00:00:00').toLocaleDateString('es-AR',{day:'2-digit',month:'short'}):'Hoy';
+  const start=new Date(hoy);start.setDate(start.getDate()-55);
+  document.getElementById('chain-start').textContent=start.toLocaleDateString('es-AR',{day:'2-digit',month:'short'});
 }
 
-// ===== TEMPORIZADOR =====
-let timerInterval=null;
-let timerTotal=45*60;
-let timerLeft=45*60;
-let timerRunning=false;
-
-function setCustomTimer(){
-  const min=Number(document.getElementById('timer-custom-min').value)||45;
-  timerTotal=min*60;timerLeft=min*60;
-  timerRunning=false;clearInterval(timerInterval);
-  updateTimerDisplay();
-  document.getElementById('timer-btn-start').textContent='▶ Iniciar';
-  document.getElementById('timer-display').className='timer-display';
-  document.getElementById('timer-bar').style.width='0%';
-}
-
-function toggleTimer(){
-  if(timerRunning){
-    clearInterval(timerInterval);timerRunning=false;
-    const mins=Math.round((timerTotal-timerLeft)/60);
-    if(mins>0) registrarSesion(mins);
-    document.getElementById('timer-btn-start').textContent='▶ Continuar';
-    document.getElementById('timer-display').className='timer-display';
-  }else{
-    if(timerLeft<=0){resetTimer();return;}
-    timerRunning=true;
-    document.getElementById('timer-btn-start').textContent='⏸ Pausar';
-    document.getElementById('timer-display').className='timer-display running';
-    timerInterval=setInterval(()=>{
-      timerLeft--;updateTimerDisplay();
-      const pct=((timerTotal-timerLeft)/timerTotal)*100;
-      document.getElementById('timer-bar').style.width=pct+'%';
-      if(timerLeft<=0){
-        clearInterval(timerInterval);timerRunning=false;
-        registrarSesion(Math.round(timerTotal/60));
-        document.getElementById('timer-display').className='timer-display done';
-        document.getElementById('timer-btn-start').textContent='▶ Iniciar';
-        document.getElementById('timer-bar').style.width='100%';
-        try{const ctx=new AudioContext();const o=ctx.createOscillator();const g=ctx.createGain();o.connect(g);g.connect(ctx.destination);o.frequency.value=880;g.gain.setValueAtTime(0.3,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+1);o.start();o.stop(ctx.currentTime+1);}catch(e){}
-        if('Notification' in window&&Notification.permission==='granted') new Notification('¡Tiempo de estudio terminado! 🎯');
-      }
-    },1000);
-  }
-}
-
-function resetTimer(){
-  clearInterval(timerInterval);timerRunning=false;
-  const m=getMateriaActiva();
-  timerTotal=(m?.minutos||45)*60;timerLeft=timerTotal;
-  document.getElementById('timer-custom-min').value=m?.minutos||45;
-  updateTimerDisplay();
-  document.getElementById('timer-btn-start').textContent='▶ Iniciar';
-  document.getElementById('timer-display').className='timer-display';
-  document.getElementById('timer-bar').style.width='0%';
-}
-
-function updateTimerDisplay(){
-  const m=Math.floor(timerLeft/60);const s=timerLeft%60;
-  document.getElementById('timer-display').textContent=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-}
-
-// ===== CRONOGRAMA AUTOMÁTICO =====
-async function cargarCronograma(ev){
-  const f=ev.target.files[0];if(!f)return;
-  const m=getMateriaActiva();if(!m)return;
-  const status=document.getElementById('cronograma-status');
-  const loading=document.getElementById('cronograma-loading');
-  loading.classList.remove('hidden');loading.style.display='flex';
-  status.textContent='';
+async function descargarBackup(){
   try{
-    const isPdf=f.type==='application/pdf'||f.name.toLowerCase().endsWith('.pdf');
-    let content;
-    if(isPdf){
-      const base64=await new Promise((res,rej)=>{const r=new FileReader();r.onload=e=>res(e.target.result.split(',')[1]);r.onerror=rej;r.readAsDataURL(f);});
-      content=[
-        {type:'document',source:{type:'base64',media_type:'application/pdf',data:base64}},
-        {type:'text',text:`Este es el programa/cronograma de la materia "${m.nombre}" que tiene ${m.semanas} semanas. Devolvé ÚNICAMENTE un JSON sin texto adicional:\n{"semanas":[{"num":1,"tema":"descripción corta semana 1"},{"num":2,"tema":"..."},...hasta semana ${m.semanas}]}\nSi una semana no tiene tema usá "". Máximo 60 caracteres por tema.`}
-      ];
-    }else{
-      const texto=await new Promise((res,rej)=>{const r=new FileReader();r.onload=e=>res(e.target.result);r.onerror=rej;r.readAsText(f);});
-      content=[{type:'text',text:`Programa de "${m.nombre}" (${m.semanas} semanas):\n\n${texto.slice(0,30000)}\n\nDevolvé ÚNICAMENTE un JSON:\n{"semanas":[{"num":1,"tema":"descripción corta"},...]}\nMáximo 60 caracteres por tema.`}];
-    }
-    const resp=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:2000,messages:[{role:"user",content}]})});
-    const data=await resp.json();
-    if(data.error) throw new Error(data.error.message);
-    const text=(data.content||[]).map(b=>b.text||'').join('');
-    const parsed=JSON.parse(text.replace(/```json|```/g,'').trim());
-    if(parsed.semanas&&Array.isArray(parsed.semanas)){
-      parsed.semanas.forEach(s=>{const idx=s.num-1;if(idx>=0&&idx<m.semanasPlan.length&&s.tema)m.semanasPlan[idx].tema=s.tema;});
-      await saveState();render();
-      status.textContent=`✓ ${parsed.semanas.filter(s=>s.tema).length} temas cargados`;
-    }else throw new Error('Formato inválido');
-  }catch(e){status.textContent='Error — intentá con un .txt';console.error(e);}
-  finally{loading.classList.add('hidden');document.getElementById('cronograma-file').value='';}
-}
-
-// ===== SESIONES / TIEMPO =====
-let sessionStartTime=null;
-
-function registrarSesion(minutos){
-  const m=getMateriaActiva();if(!m)return;
-  if(!m.sesiones) m.sesiones={};
-  const hoy=todayStr();
-  m.sesiones[hoy]=(m.sesiones[hoy]||0)+Math.round(minutos);
-  saveState();
-  renderSessionLog();
-}
-
-function renderSessionLog(){
-  const m=getMateriaActiva();if(!m)return;
-  const hoy=todayStr();
-  const minsHoy=(m.sesiones&&m.sesiones[hoy])||0;
-  const logEl=document.getElementById('session-log-today');
-  const minsEl=document.getElementById('s-mins');
-  if(logEl) logEl.textContent=minsHoy>0?`⏱ ${minsHoy} min estudiados hoy`:'';
-  if(minsEl) minsEl.textContent=minsHoy;
-
-  // Sesiones recientes (últimos 5 días con datos)
-  const sesEl=document.getElementById('sesiones-lista');
-  if(!sesEl||!m.sesiones)return;
-  const dias=Object.entries(m.sesiones).filter(([,v])=>v>0).sort((a,b)=>b[0].localeCompare(a[0])).slice(0,5);
-  if(!dias.length){sesEl.textContent='Sin sesiones registradas aún.';return;}
-  sesEl.innerHTML=dias.map(([d,min])=>{
-    const dt=new Date(d+'T00:00:00');
-    const label=dt.toLocaleDateString('es-AR',{weekday:'short',day:'2-digit',month:'short'});
-    return `<div style="display:flex;justify-content:space-between"><span>${label}</span><span style="color:var(--amber)">${min} min</span></div>`;
-  }).join('');
-}
-
-// ===== NOTAS RÁPIDAS =====
-async function guardarNotaRapida(val){
-  const m=getMateriaActiva();if(!m)return;
-  if(!m.notas) m.notas={};
-  m.notas[todayStr()]=val;
-  await saveState();
-}
-
-// ===== BARRA PROGRESO CUATRIMESTRE =====
-function renderProgresCuatri(m){
-  if(!m.fechaInicio){
-    document.getElementById('progreso-cuatri-card').style.display='none';return;
-  }
-  document.getElementById('progreso-cuatri-card').style.display='';
-  const inicio=new Date(m.fechaInicio+'T00:00:00');
-  const fin=new Date(inicio);fin.setDate(fin.getDate()+m.semanas*7);
-  const hoy=new Date();
-  const totalDias=fin-inicio;
-  const pasados=Math.max(0,hoy-inicio);
-  const pct=Math.min(100,Math.round((pasados/totalDias)*100));
-  const semanasActual=Math.max(0,Math.floor(pasados/(7*86400000)));
-
-  document.getElementById('cuatri-bar').style.width=pct+'%';
-  document.getElementById('cuatri-pct').textContent=pct+'%';
-  document.getElementById('cuatri-inicio').textContent=inicio.toLocaleDateString('es-AR',{day:'2-digit',month:'short'});
-  document.getElementById('cuatri-fin').textContent=fin.toLocaleDateString('es-AR',{day:'2-digit',month:'short'});
-  document.getElementById('cuatri-semanas-txt').textContent=`Semana ${semanasActual} de ${m.semanas}`;
-}
-
-// ===== ALERTA RACHA EN PELIGRO =====
-function checkAlertaRacha(m){
-  const hora=new Date().getHours();
-  const hechoHoy=!!m.dias[todayStr()];
-  const alerta=document.getElementById('alerta-racha');
-  // Mostrar si son las 19hs o más y no marcó el día
-  if(!hechoHoy && hora>=19){
-    alerta.classList.remove('hidden');
-  }else{
-    alerta.classList.add('hidden');
+    // Traer todo de Firebase
+    const estadoDoc=await _getDoc(_doc(_db,'lectura','estado'));
+    const citasSnap=await _getDocs(_col(_db,'lectura_citas'));
+    const citas=[];
+    citasSnap.forEach(d=>citas.push({id:d.id,...d.data()}));
+    const backup={
+      fecha_backup: new Date().toISOString(),
+      estado: estadoDoc.exists()?estadoDoc.data():state,
+      citas
+    };
+    const blob=new Blob([JSON.stringify(backup,null,2)],{type:'application/json'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url;
+    a.download=`lectura-backup-${todayStr()}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }catch(e){
+    // Fallback: backup del estado local
+    const blob=new Blob([JSON.stringify({fecha_backup:new Date().toISOString(),estado:state,citas:state.citas||[]},null,2)],{type:'application/json'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url;
+    a.download=`lectura-backup-${todayStr()}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
   }
 }
-let uploadedFile=null;let currentAction='resumen';
 
-function handleFile(ev){
-  const f=ev.target.files[0];if(!f)return;
-  const isPdf=f.type==='application/pdf'||f.name.toLowerCase().endsWith('.pdf');
-  const reader=new FileReader();
-  reader.onload=e=>{
-    if(isPdf){uploadedFile={name:f.name,mediaType:'application/pdf',data:e.target.result.split(',')[1],isPdf:true};}
-    else{uploadedFile={name:f.name,mediaType:'text',data:e.target.result,isPdf:false};}
-    document.getElementById('up-text').textContent='Archivo cargado';
-    document.getElementById('upload-zone').classList.add('has-file');
-    document.getElementById('file-pill-container').innerHTML=`<div class="file-pill">📄 ${f.name} <button onclick="clearFile()">✕</button></div>`;
-  };
-  if(isPdf)reader.readAsDataURL(f);else reader.readAsText(f);
-}
-
-function clearFile(){uploadedFile=null;document.getElementById('file-pill-container').innerHTML='';document.getElementById('up-text').textContent='Hacé clic para subir un archivo';document.getElementById('upload-zone').classList.remove('has-file');document.getElementById('file-input').value='';}
-function setAction(a,btn){currentAction=a;document.querySelectorAll('.action-tab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');}
-
-async function generar(){
-  if(!uploadedFile){alert('Subí un archivo primero');return;}
-  const topic=document.getElementById('topic-input').value.trim();
-  const base="Sos un tutor universitario paciente y claro, en español rioplatense. Trabajás SOLO con el material adjunto. Después de cada afirmación importante indicá entre paréntesis de dónde la sacaste del material. Para ejercicios con cálculos mostrá el paso a paso completo.";
-  let prompt=base;
-  if(currentAction==='resumen') prompt+=topic?` Resumí el tema "${topic}" del material: idea central en 2-3 líneas, después conceptos clave con definición y ejemplo concreto cada uno.`:` Resumí los temas principales del material: idea central en 2-3 líneas, conceptos clave con definición y ejemplo.`;
-  else if(currentAction==='ejercicios') prompt+=` Generá ejercicios sobre ${topic||'los temas del material'}: primero 2 fáciles, después 2 de nivel examen. Dame solo los enunciados, después las respuestas con explicación.`;
-  else prompt+=topic?` No entiendo "${topic}". Explicámelo de otra forma con analogía o ejemplo numérico, sin repetir el texto original.`:` Explicame los conceptos más importantes del material de forma simple con ejemplos.`;
-
-  const genBtn=document.getElementById('gen-btn');
-  const loadingRow=document.getElementById('loading-row');
-  const outputBox=document.getElementById('output-box');
-  genBtn.disabled=true;loadingRow.classList.remove('hidden');outputBox.textContent='';
+async function reiniciar(){
+  if(!confirm('¿Seguro? Se borra todo.'))return;
   try{
-    const content=uploadedFile.isPdf
-      ?[{type:'document',source:{type:'base64',media_type:'application/pdf',data:uploadedFile.data}},{type:'text',text:prompt}]
-      :[{type:'text',text:prompt+"\n\n--- MATERIAL ---\n"+uploadedFile.data.slice(0,40000)}];
-    const resp=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:1500,messages:[{role:"user",content}]})});
-    const data=await resp.json();
-    if(data.error)throw new Error(data.error.message);
-    outputBox.textContent=(data.content||[]).map(b=>b.text||'').join('\n');
-  }catch(e){outputBox.textContent='Error: '+e.message;}
-  finally{genBtn.disabled=false;loadingRow.classList.add('hidden');}
+    await _setDoc(_doc(_db,'lectura','estado'),{libro:null,dias:{},historial:[]});
+    const snap=await _getDocs(_col(_db,'lectura_citas'));
+    for(const d of snap.docs) await _deleteDoc(_doc(_db,'lectura_citas',d.id));
+  }catch(e){}
+  localStorage.removeItem(KEY);
+  state={libro:null,dias:{},citas:[],historial:[]};
+  render();
+  document.getElementById('setup-banner').classList.remove('hidden');
 }
 
-// ===== RENDER =====
+/* RENDER */
 function render(){
-  const nav=document.getElementById('materias-nav');
-  nav.innerHTML=materias.map(m=>`<button class="mat-tab${m.id===materiaActivaId?' active':''}" onclick="cambiarMateria('${m.id}')">${m.nombre}</button>`).join('')+
-    '<button class="btn-nueva" onclick="abrirNuevaMateria()">+ Nueva materia</button>';
+  const tiene=!!state.libro;
+  document.getElementById('setup-banner').classList.toggle('hidden',tiene);
+  document.getElementById('hero-section').classList.toggle('hidden',!tiene);
+  document.getElementById('main-grid').classList.toggle('hidden',!tiene);
+  document.getElementById('citas-section').classList.toggle('hidden',!tiene);
 
-  const m=getMateriaActiva();
-  const contenido=document.getElementById('contenido-materia');
-
-  if(!m){
-    contenido.classList.add('hidden');
-    document.getElementById('header-sub').textContent='sin materias configuradas';
-    document.getElementById('status-pill').className='status-pill';
-    document.getElementById('status-text').textContent='sin configurar';
-    return;
+  // Título dinámico = nombre del libro
+  const headerTitulo=document.getElementById('header-titulo');
+  const headerSub=document.getElementById('header-sub');
+  if(state.libro){
+    headerTitulo.textContent=state.libro.titulo;
+    headerSub.textContent=state.libro.autor||'';
+  }else{
+    headerTitulo.textContent='Lectura';
+    headerSub.textContent='configurá tu libro';
   }
 
-  contenido.classList.remove('hidden');
-  document.getElementById('header-sub').textContent=m.nombre;
-
-  const r=calcRachas(m.dias);
+  const r=calcRachas();
   const pill=document.getElementById('status-pill');
-  if(r.actual>0){pill.className='status-pill active';document.getElementById('status-text').textContent='cadena activa';}
+  if(!tiene){pill.className='status-pill';document.getElementById('status-text').textContent='sin configurar';}
+  else if(r.actual>0){pill.className='status-pill active';document.getElementById('status-text').textContent='cadena activa';}
   else{pill.className='status-pill';document.getElementById('status-text').textContent='retomá hoy';}
 
-  document.getElementById('streak-num').innerHTML=r.actual+'<span>días seguidos sin cortar</span>';
-  document.getElementById('s-racha').textContent=r.actual;
-  document.getElementById('s-mejor').textContent=r.mejor;
-  document.getElementById('s-total').textContent=r.total;
-  const semanasTranscurridas=m.fechaInicio?Math.floor((new Date()-new Date(m.fechaInicio+'T00:00:00'))/(7*86400000)):0;
-  document.getElementById('s-semanas').textContent=Math.max(0,semanasTranscurridas);
+  if(!tiene)return;
 
-  // Timer
-  document.getElementById('timer-recom').textContent=m.minutos+' min';
-  document.getElementById('timer-custom-min').value=m.minutos||45;
-  if(!timerRunning){timerTotal=(m.minutos||45)*60;timerLeft=timerTotal;updateTimerDisplay();}
+  const l=state.libro;
+  document.getElementById('disp-titulo').textContent=l.titulo;
+  document.getElementById('disp-autor').textContent=l.autor||'';
+  document.getElementById('disp-pag').textContent=l.pagActual;
+  document.getElementById('disp-total').textContent=l.pagTotal||'?';
+  const pct=l.pagTotal>0?Math.min(100,Math.round(l.pagActual/l.pagTotal*100)):0;
+  document.getElementById('disp-pct').textContent=pct+'%';
+  document.getElementById('disp-barra').style.width=pct+'%';
 
-  // Tarea
-  const hechoHoy=!!m.dias[todayStr()];
-  document.getElementById('hoy-text').textContent=m.tareaHoy||'Sin definir — tocá Editar';
-  document.getElementById('check-btn').textContent=hechoHoy?'Hecho ✓ (tocá para deshacer)':'Hecho ✓';
-  document.getElementById('check-btn').classList.toggle('done',hechoHoy);
+  const hechoHoy=!!state.dias[todayStr()];
+  const btn=document.getElementById('btn-hoy');
+  document.getElementById('hoy-done-display').classList.toggle('hidden',!hechoHoy);
+  document.getElementById('hoy-input-section').classList.toggle('hidden',hechoHoy);
   document.getElementById('hoy-box').classList.toggle('done',hechoHoy);
-  const note=document.getElementById('hoy-note');
-  if(r.actual===0&&r.total>0)note.textContent='Se cortó. No pasa nada — empezás una nueva hoy.';
-  else if(r.actual>0)note.textContent='Vas bien. No dejes pasar dos días seguidos.';
-  else note.textContent='El primer día es hoy.';
-
-  renderChain(m);
-  renderProgresCuatri(m);
-  checkAlertaRacha(m);
-  renderSessionLog();
-
-  // Nota rápida de hoy
-  const notaEl=document.getElementById('nota-rapida');
-  if(notaEl) notaEl.value=(m.notas&&m.notas[todayStr()])||'';
-
-  // Plan semanal
-  const weeksList=document.getElementById('weeks-list');
-  weeksList.innerHTML=m.semanasPlan.map((w,i)=>`
-    <div class="week-row">
-      <div class="week-num">S${w.num}</div>
-      <div class="week-check ${w.done?'checked':''}" onclick="toggleSemana(${i})"></div>
-      <input class="week-input" placeholder="Tema de la semana ${w.num}..." value="${(w.tema||'').replace(/"/g,'&quot;')}" oninput="actualizarTemaSemana(${i},this.value)">
-    </div>`).join('');
-
-  // Examen
-  const examList=document.getElementById('exam-list');
-  examList.innerHTML=m.examChecklist.map((e,i)=>`
-    <div class="exam-item ${e.c?'checked':''}">
-      <input type="checkbox" id="ex-${i}" ${e.c?'checked':''} onchange="toggleExam(${i})">
-      <label for="ex-${i}">${e.t}</label>
-    </div>`).join('');
-}
-
-render();
-</script>
-</body>
-</html>
+  btn.textContent=hechoHoy?'Hecho ✓ (tocá para deshacer)':'Marcar día ✓';
+  btn.classList.toggle('done',hechoHoy);
+  if(hechoHoy)document.getElementById('hoy-num').innerHTML=state.dias[todayStr()]+'<span>pági
