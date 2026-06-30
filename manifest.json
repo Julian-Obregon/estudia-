@@ -1,7 +1,7 @@
 {
-  "name": "La Cadena — Plan de la materia",
-  "short_name": "La Cadena",
-  "description": "Tracker de estudio y generador de resúmenes/ejercicios",
+  "name": "Estudia",
+  "short_name": "Estudia",
+  "description": "Tracker de estudio con múltiples materias y temporizador",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
