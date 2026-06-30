@@ -611,4 +611,339 @@ function toggleTimer(){
         document.getElementById('timer-display').className='timer-display done';
         document.getElementById('timer-btn-start').textContent='▶ Iniciar';
         document.getElementById('timer-bar').style.width='100%';
-        try{const ctx=new AudioContext();const o=ctx.createOscillator();const g=ctx.createGain
+        try{const ctx=new AudioContext();const o=ctx.createOscillator();const g=ctx.createGain();o.connect(g);g.connect(ctx.destination);o.frequency.value=880;g.gain.setValueAtTime(0.3,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+1);o.start();o.stop(ctx.currentTime+1);}catch(e){}
+        if('Notification' in window&&Notification.permission==='granted') new Notification('¡Tiempo de estudio terminado! 🎯');
+      }
+    },1000);
+  }
+}
+
+function resetTimer(){
+  clearInterval(timerInterval);timerRunning=false;
+  const m=getMateriaActiva();
+  timerTotal=(m?.minutos||45)*60;timerLeft=timerTotal;
+  document.getElementById('timer-custom-min').value=m?.minutos||45;
+  updateTimerDisplay();
+  document.getElementById('timer-btn-start').textContent='▶ Iniciar';
+  document.getElementById('timer-display').className='timer-display';
+  document.getElementById('timer-bar').style.width='0%';
+}
+
+function updateTimerDisplay(){
+  const m=Math.floor(timerLeft/60);const s=timerLeft%60;
+  document.getElementById('timer-display').textContent=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
+
+// ===== CRONOGRAMA AUTOMÁTICO =====
+async function cargarCronograma(ev){
+  const f=ev.target.files[0];if(!f)return;
+  const m=getMateriaActiva();if(!m)return;
+  const status=document.getElementById('cronograma-status');
+  const loading=document.getElementById('cronograma-loading');
+  loading.classList.remove('hidden');loading.style.display='flex';
+  status.textContent='';
+  try{
+    const isPdf=f.type==='application/pdf'||f.name.toLowerCase().endsWith('.pdf');
+    let content;
+    if(isPdf){
+      const base64=await new Promise((res,rej)=>{const r=new FileReader();r.onload=e=>res(e.target.result.split(',')[1]);r.onerror=rej;r.readAsDataURL(f);});
+      content=[
+        {type:'document',source:{type:'base64',media_type:'application/pdf',data:base64}},
+        {type:'text',text:`Este es el programa/cronograma de la materia "${m.nombre}" que tiene ${m.semanas} semanas. Devolvé ÚNICAMENTE un JSON sin texto adicional:\n{"semanas":[{"num":1,"tema":"descripción corta semana 1"},{"num":2,"tema":"..."},...hasta semana ${m.semanas}]}\nSi una semana no tiene tema usá "". Máximo 60 caracteres por tema.`}
+      ];
+    }else{
+      const texto=await new Promise((res,rej)=>{const r=new FileReader();r.onload=e=>res(e.target.result);r.onerror=rej;r.readAsText(f);});
+      content=[{type:'text',text:`Programa de "${m.nombre}" (${m.semanas} semanas):\n\n${texto.slice(0,30000)}\n\nDevolvé ÚNICAMENTE un JSON:\n{"semanas":[{"num":1,"tema":"descripción corta"},...]}\nMáximo 60 caracteres por tema.`}];
+    }
+    const resp=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:2000,messages:[{role:"user",content}]})});
+    const data=await resp.json();
+    if(data.error) throw new Error(data.error.message);
+    const text=(data.content||[]).map(b=>b.text||'').join('');
+    const parsed=JSON.parse(text.replace(/```json|```/g,'').trim());
+    if(parsed.semanas&&Array.isArray(parsed.semanas)){
+      parsed.semanas.forEach(s=>{const idx=s.num-1;if(idx>=0&&idx<m.semanasPlan.length&&s.tema)m.semanasPlan[idx].tema=s.tema;});
+      await saveState();render();
+      status.textContent=`✓ ${parsed.semanas.filter(s=>s.tema).length} temas cargados`;
+    }else throw new Error('Formato inválido');
+  }catch(e){status.textContent='Error — intentá con un .txt';console.error(e);}
+  finally{loading.classList.add('hidden');document.getElementById('cronograma-file').value='';}
+}
+
+// ===== SESIONES / TIEMPO =====
+let sessionStartTime=null;
+
+function registrarSesion(minutos){
+  const m=getMateriaActiva();if(!m)return;
+  if(!m.sesiones) m.sesiones={};
+  const hoy=todayStr();
+  m.sesiones[hoy]=(m.sesiones[hoy]||0)+Math.round(minutos);
+  saveState();
+  renderSessionLog();
+}
+
+function renderSessionLog(){
+  const m=getMateriaActiva();if(!m)return;
+  const hoy=todayStr();
+  const minsHoy=(m.sesiones&&m.sesiones[hoy])||0;
+  const logEl=document.getElementById('session-log-today');
+  const minsEl=document.getElementById('s-mins');
+  if(logEl) logEl.textContent=minsHoy>0?`⏱ ${minsHoy} min estudiados hoy`:'';
+  if(minsEl) minsEl.textContent=minsHoy;
+
+  // Sesiones recientes (últimos 5 días con datos)
+  const sesEl=document.getElementById('sesiones-lista');
+  if(!sesEl||!m.sesiones)return;
+  const dias=Object.entries(m.sesiones).filter(([,v])=>v>0).sort((a,b)=>b[0].localeCompare(a[0])).slice(0,5);
+  if(!dias.length){sesEl.textContent='Sin sesiones registradas aún.';return;}
+  sesEl.innerHTML=dias.map(([d,min])=>{
+    const dt=new Date(d+'T00:00:00');
+    const label=dt.toLocaleDateString('es-AR',{weekday:'short',day:'2-digit',month:'short'});
+    return `<div style="display:flex;justify-content:space-between"><span>${label}</span><span style="color:var(--amber)">${min} min</span></div>`;
+  }).join('');
+}
+
+// ===== NOTAS RÁPIDAS =====
+async function guardarNotaRapida(val){
+  const m=getMateriaActiva();if(!m)return;
+  if(!m.notas) m.notas={};
+  m.notas[todayStr()]=val;
+  await saveState();
+}
+
+// ===== BARRA PROGRESO CUATRIMESTRE =====
+function renderProgresCuatri(m){
+  if(!m.fechaInicio){
+    document.getElementById('progreso-cuatri-card').style.display='none';return;
+  }
+  document.getElementById('progreso-cuatri-card').style.display='';
+  const inicio=new Date(m.fechaInicio+'T00:00:00');
+  const fin=new Date(inicio);fin.setDate(fin.getDate()+m.semanas*7);
+  const hoy=new Date();
+  const totalDias=fin-inicio;
+  const pasados=Math.max(0,hoy-inicio);
+  const pct=Math.min(100,Math.round((pasados/totalDias)*100));
+  const semanasActual=Math.max(0,Math.floor(pasados/(7*86400000)));
+
+  document.getElementById('cuatri-bar').style.width=pct+'%';
+  document.getElementById('cuatri-pct').textContent=pct+'%';
+  document.getElementById('cuatri-inicio').textContent=inicio.toLocaleDateString('es-AR',{day:'2-digit',month:'short'});
+  document.getElementById('cuatri-fin').textContent=fin.toLocaleDateString('es-AR',{day:'2-digit',month:'short'});
+  document.getElementById('cuatri-semanas-txt').textContent=`Semana ${semanasActual} de ${m.semanas}`;
+}
+
+// ===== ALERTA RACHA EN PELIGRO =====
+function checkAlertaRacha(m){
+  const hora=new Date().getHours();
+  const hechoHoy=!!m.dias[todayStr()];
+  const alerta=document.getElementById('alerta-racha');
+  // Mostrar si son las 19hs o más y no marcó el día
+  if(!hechoHoy && hora>=19){
+    alerta.classList.remove('hidden');
+  }else{
+    alerta.classList.add('hidden');
+  }
+}
+// ===== CLOUDINARY CONFIG =====
+const CLOUDINARY_ESTUDIO={
+  cloudName:'dwzvkixnt',
+  uploadPreset:'estudio_unsigned'
+};
+
+async function subirPDFCloudinary(file){
+  const formData=new FormData();
+  formData.append('file', file);
+  formData.append('upload_preset', CLOUDINARY_ESTUDIO.uploadPreset);
+  formData.append('folder','estudio');
+  formData.append('resource_type','raw'); // para PDFs
+  const resp=await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_ESTUDIO.cloudName}/raw/upload`,{method:'POST',body:formData});
+  if(!resp.ok) throw new Error('Error subiendo PDF');
+  const data=await resp.json();
+  return {url:data.secure_url, nombre:file.name, publicId:data.public_id};
+}
+
+let uploadedFile=null;let currentAction='resumen';
+
+// Biblioteca de PDFs por materia (guardada en Firebase)
+let bibliotecaArchivos=[]; // [{nombre, url, publicId, materiaId, fecha}]
+
+async function cargarBiblioteca(){
+  if(!_db) return;
+  try{
+    const snap=await _getDocs(_col(_db,'estudio_archivos'));
+    bibliotecaArchivos=[];
+    snap.forEach(d=>bibliotecaArchivos.push({id:d.id,...d.data()}));
+    renderBiblioteca();
+  }catch(e){}
+}
+
+async function guardarEnBiblioteca(file){
+  const m=getMateriaActiva();if(!m)return;
+  const genBtn=document.getElementById('gen-btn');
+  const pill=document.getElementById('file-pill-container');
+  pill.innerHTML=`<div class="file-pill">⬆ Subiendo a la nube...</div>`;
+  try{
+    const result=await subirPDFCloudinary(file);
+    const archivo={nombre:result.nombre,url:result.url,publicId:result.publicId,materiaId:m.id,materiaNombre:m.nombre,fecha:todayStr()};
+    const ref=await _addDoc(_col(_db,'estudio_archivos'),archivo);
+    bibliotecaArchivos.push({id:ref.id,...archivo});
+    pill.innerHTML=`<div class="file-pill">☁ ${result.nombre} guardado <button onclick="clearFile()">✕</button></div>`;
+    renderBiblioteca();
+    return result.url;
+  }catch(e){
+    pill.innerHTML=`<div class="file-pill" style="color:var(--red)">Error subiendo — intentá de nuevo</div>`;
+    return null;
+  }
+}
+
+function renderBiblioteca(){
+  const el=document.getElementById('biblioteca-lista');if(!el)return;
+  const m=getMateriaActiva();if(!m)return;
+  const archivos=bibliotecaArchivos.filter(a=>a.materiaId===m.id);
+  if(!archivos.length){el.innerHTML='<div style="font-size:12px;color:var(--muted2)">Todavía no subiste archivos para esta materia.</div>';return;}
+  el.innerHTML=archivos.map(a=>`
+    <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border-soft);">
+      <div style="flex:1;font-size:12.5px;color:var(--text-dim);">📄 ${a.nombre}</div>
+      <button onclick="usarPDFGuardado('${a.url}','${a.nombre.replace(/'/g,"\\'")}');return false;" style="background:var(--amber-soft);color:var(--amber);border:1px solid var(--amber);border-radius:7px;padding:5px 10px;font-size:11.5px;cursor:pointer;">Usar</button>
+    </div>
+  `).join('');
+}
+
+async function usarPDFGuardado(url, nombre){
+  const pill=document.getElementById('file-pill-container');
+  pill.innerHTML=`<div class="file-pill">⬇ Cargando ${nombre}...</div>`;
+  try{
+    const resp=await fetch(url);
+    const blob=await resp.blob();
+    const arrayBuffer=await blob.arrayBuffer();
+    const base64=btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
+    uploadedFile={name:nombre,mediaType:'application/pdf',data:base64,isPdf:true};
+    document.getElementById('up-text').textContent='Archivo cargado desde la nube';
+    document.getElementById('upload-zone').classList.add('has-file');
+    pill.innerHTML=`<div class="file-pill">📄 ${nombre} <button onclick="clearFile()">✕</button></div>`;
+  }catch(e){
+    pill.innerHTML=`<div class="file-pill" style="color:var(--red)">Error cargando — intentá de nuevo</div>`;
+  }
+}
+
+function handleFile(ev){
+  const f=ev.target.files[0];if(!f)return;
+  const isPdf=f.type==='application/pdf'||f.name.toLowerCase().endsWith('.pdf');
+  const reader=new FileReader();
+  reader.onload=e=>{
+    if(isPdf){uploadedFile={name:f.name,mediaType:'application/pdf',data:e.target.result.split(',')[1],isPdf:true};}
+    else{uploadedFile={name:f.name,mediaType:'text',data:e.target.result,isPdf:false};}
+    document.getElementById('up-text').textContent='Archivo cargado';
+    document.getElementById('upload-zone').classList.add('has-file');
+    document.getElementById('file-pill-container').innerHTML=`<div class="file-pill">📄 ${f.name} <button onclick="guardarEnBiblioteca(handleFile._lastFile)">☁ Guardar en biblioteca</button> <button onclick="clearFile()">✕</button></div>`;
+    handleFile._lastFile=f;
+  };
+  if(isPdf)reader.readAsDataURL(f);else reader.readAsText(f);
+}
+
+function clearFile(){uploadedFile=null;document.getElementById('file-pill-container').innerHTML='';document.getElementById('up-text').textContent='Hacé clic para subir un archivo';document.getElementById('upload-zone').classList.remove('has-file');document.getElementById('file-input').value='';}
+function setAction(a,btn){currentAction=a;document.querySelectorAll('.action-tab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');}
+
+async function generar(){
+  if(!uploadedFile){alert('Subí un archivo primero');return;}
+  const topic=document.getElementById('topic-input').value.trim();
+  const base="Sos un tutor universitario paciente y claro, en español rioplatense. Trabajás SOLO con el material adjunto. Después de cada afirmación importante indicá entre paréntesis de dónde la sacaste del material. Para ejercicios con cálculos mostrá el paso a paso completo.";
+  let prompt=base;
+  if(currentAction==='resumen') prompt+=topic?` Resumí el tema "${topic}" del material: idea central en 2-3 líneas, después conceptos clave con definición y ejemplo concreto cada uno.`:` Resumí los temas principales del material: idea central en 2-3 líneas, conceptos clave con definición y ejemplo.`;
+  else if(currentAction==='ejercicios') prompt+=` Generá ejercicios sobre ${topic||'los temas del material'}: primero 2 fáciles, después 2 de nivel examen. Dame solo los enunciados, después las respuestas con explicación.`;
+  else prompt+=topic?` No entiendo "${topic}". Explicámelo de otra forma con analogía o ejemplo numérico, sin repetir el texto original.`:` Explicame los conceptos más importantes del material de forma simple con ejemplos.`;
+
+  const genBtn=document.getElementById('gen-btn');
+  const loadingRow=document.getElementById('loading-row');
+  const outputBox=document.getElementById('output-box');
+  genBtn.disabled=true;loadingRow.classList.remove('hidden');outputBox.textContent='';
+  try{
+    const content=uploadedFile.isPdf
+      ?[{type:'document',source:{type:'base64',media_type:'application/pdf',data:uploadedFile.data}},{type:'text',text:prompt}]
+      :[{type:'text',text:prompt+"\n\n--- MATERIAL ---\n"+uploadedFile.data.slice(0,40000)}];
+    const resp=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:1500,messages:[{role:"user",content}]})});
+    const data=await resp.json();
+    if(data.error)throw new Error(data.error.message);
+    outputBox.textContent=(data.content||[]).map(b=>b.text||'').join('\n');
+  }catch(e){outputBox.textContent='Error: '+e.message;}
+  finally{genBtn.disabled=false;loadingRow.classList.add('hidden');}
+}
+
+// ===== RENDER =====
+function render(){
+  const nav=document.getElementById('materias-nav');
+  nav.innerHTML=materias.map(m=>`<button class="mat-tab${m.id===materiaActivaId?' active':''}" onclick="cambiarMateria('${m.id}')">${m.nombre}</button>`).join('')+
+    '<button class="btn-nueva" onclick="abrirNuevaMateria()">+ Nueva materia</button>';
+
+  const m=getMateriaActiva();
+  const contenido=document.getElementById('contenido-materia');
+
+  if(!m){
+    contenido.classList.add('hidden');
+    document.getElementById('header-sub').textContent='sin materias configuradas';
+    document.getElementById('status-pill').className='status-pill';
+    document.getElementById('status-text').textContent='sin configurar';
+    return;
+  }
+
+  contenido.classList.remove('hidden');
+  document.getElementById('header-sub').textContent=m.nombre;
+
+  const r=calcRachas(m.dias);
+  const pill=document.getElementById('status-pill');
+  if(r.actual>0){pill.className='status-pill active';document.getElementById('status-text').textContent='cadena activa';}
+  else{pill.className='status-pill';document.getElementById('status-text').textContent='retomá hoy';}
+
+  document.getElementById('streak-num').innerHTML=r.actual+'<span>días seguidos sin cortar</span>';
+  document.getElementById('s-racha').textContent=r.actual;
+  document.getElementById('s-mejor').textContent=r.mejor;
+  document.getElementById('s-total').textContent=r.total;
+  const semanasTranscurridas=m.fechaInicio?Math.floor((new Date()-new Date(m.fechaInicio+'T00:00:00'))/(7*86400000)):0;
+  document.getElementById('s-semanas').textContent=Math.max(0,semanasTranscurridas);
+
+  // Timer
+  document.getElementById('timer-recom').textContent=m.minutos+' min';
+  document.getElementById('timer-custom-min').value=m.minutos||45;
+  if(!timerRunning){timerTotal=(m.minutos||45)*60;timerLeft=timerTotal;updateTimerDisplay();}
+
+  // Tarea
+  const hechoHoy=!!m.dias[todayStr()];
+  document.getElementById('hoy-text').textContent=m.tareaHoy||'Sin definir — tocá Editar';
+  document.getElementById('check-btn').textContent=hechoHoy?'Hecho ✓ (tocá para deshacer)':'Hecho ✓';
+  document.getElementById('check-btn').classList.toggle('done',hechoHoy);
+  document.getElementById('hoy-box').classList.toggle('done',hechoHoy);
+  const note=document.getElementById('hoy-note');
+  if(r.actual===0&&r.total>0)note.textContent='Se cortó. No pasa nada — empezás una nueva hoy.';
+  else if(r.actual>0)note.textContent='Vas bien. No dejes pasar dos días seguidos.';
+  else note.textContent='El primer día es hoy.';
+
+  renderChain(m);
+  renderProgresCuatri(m);
+  checkAlertaRacha(m);
+  renderSessionLog();
+
+  // Nota rápida de hoy
+  const notaEl=document.getElementById('nota-rapida');
+  if(notaEl) notaEl.value=(m.notas&&m.notas[todayStr()])||'';
+
+  // Plan semanal
+  const weeksList=document.getElementById('weeks-list');
+  weeksList.innerHTML=m.semanasPlan.map((w,i)=>`
+    <div class="week-row">
+      <div class="week-num">S${w.num}</div>
+      <div class="week-check ${w.done?'checked':''}" onclick="toggleSemana(${i})"></div>
+      <input class="week-input" placeholder="Tema de la semana ${w.num}..." value="${(w.tema||'').replace(/"/g,'&quot;')}" oninput="actualizarTemaSemana(${i},this.value)">
+    </div>`).join('');
+
+  // Examen
+  const examList=document.getElementById('exam-list');
+  examList.innerHTML=m.examChecklist.map((e,i)=>`
+    <div class="exam-item ${e.c?'checked':''}">
+      <input type="checkbox" id="ex-${i}" ${e.c?'checked':''} onchange="toggleExam(${i})">
+      <label for="ex-${i}">${e.t}</label>
+    </div>`).join('');
+}
+
+render();
+</script>
+</body>
+</html>
